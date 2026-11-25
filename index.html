@@ -640,6 +640,7 @@ function scoreForGrid(m) {
 
 const MIN_GRIDS = 2, MAX_GRIDS = 150, AUTO_MAX = 60;
 const FEE_RATE = 0.0005, MAX_AUTO_LEV = 10, MIN_BUF = 1.001;
+const LOOKBACK = { '15m': 96, '1h': 72, '4h': 42, '1d': 30 };
 
 function buildGrid(m, capital, lev, override) {
   const f = m.filters || {};
@@ -663,18 +664,26 @@ function buildGrid(m, capital, lev, override) {
   const maxByCapital = Math.floor(notional / (minPerGrid * MIN_BUF));
   if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, lev: needLev, minPerGrid: minPerGrid };
 
-  const width = clamp(m.atrPct * 6.2, 7, 26) * (m.adx != null && m.adx >= 25 ? 0.85 : 1);
   const stepTarget = clamp(m.atrPct * 0.55, 0.5, 2.6);
+  const guard = clamp(m.atrPct * 1.2, 2, 6);
+  let rLo = m.price * (1 - guard / 100), rHi = m.price * (1 + guard / 100);
+  if (m.lo > 0 && m.hi > m.lo) { rLo = Math.min(rLo, m.lo); rHi = Math.max(rHi, m.hi); }
+  const widthRaw = (rHi - rLo) / m.price * 100;
   const manual = Number.isFinite(override) && override >= MIN_GRIDS;
-  const wanted = manual ? Math.round(override) : Math.round(width / stepTarget);
+  const wanted = manual ? Math.round(override) : Math.round(widthRaw / stepTarget);
   const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
   const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
   const capped = wanted > cap;
   const levRaised = L > reqLev;
-  const widthEff = capped ? clamp(count * stepTarget, 4, width) : width;
-  const center = m.price * (1 - clamp(m.bias, -60, 60) / 100 * 0.006);
-  const lower = center * (1 - widthEff / 200);
-  const upper = center * (1 + widthEff / 200);
+  const wMin = clamp(count * stepTarget * 0.6, 4, 30), wMax = clamp(count * stepTarget * 1.8, 6, 30);
+  let lower, upper;
+  if (widthRaw >= wMin && widthRaw <= wMax) {
+    lower = rLo; upper = rHi;
+  } else {
+    const w = clamp(widthRaw, wMin, wMax);
+    lower = m.price * (1 - w / 200); upper = m.price * (1 + w / 200);
+  }
+  const widthEff = (upper - lower) / m.price * 100;
   const perNotional = notional / count;
   if (perNotional < minPerGrid) return { error: 'funds', count: count, need: need, lev: L, minPerGrid: minPerGrid };
   let qty = roundStep(perNotional / m.price, step, 'floor');
@@ -711,6 +720,7 @@ function validatePlan(p, m, capital, minPerGrid, step, minN, minQ, need) {
   if (p.qty * m.price < minN - 1e-9) fails.push('minNotional');
   if (p.qty * m.price < minPerGrid - 1e-9) fails.push('minPerGrid');
   if (stepN > 0 && Math.abs(p.qty / stepN - Math.round(p.qty / stepN)) > 1e-9) fails.push('step');
+  if (!(p.lower < m.price && m.price < p.upper)) fails.push('range');
   if (p.perGrid * p.count > capital + 1e-6) fails.push('margin');
   if (p.total + p.reserve > capital + 1e-6) fails.push('reserve');
   if (fails.length) return { error: 'funds', count: p.count, need: need, lev: p.lev, minPerGrid: minPerGrid, fails: fails };
@@ -869,6 +879,14 @@ async function analysePair(symbol) {
   const t24 = await getJSON(API + '/api/v3/ticker/24hr?symbol=' + symbol);
   const candles = await klines(symbol, state.tf, 300);
   const m = metrics(symbol, candles, t24, filters);
+  const n = LOOKBACK[state.tf] || 42;
+  const win = candles.slice(-n);
+  let hi = -Infinity, lo = Infinity;
+  for (let i = 0; i < win.length; i++) {
+    if (win[i].h > hi) hi = win[i].h;
+    if (win[i].l < lo) lo = win[i].l;
+  }
+  m.hi = hi; m.lo = lo; m.lookback = n; m.tf = state.tf;
   m.funding = await fundingRate(symbol);
   return m;
 }
