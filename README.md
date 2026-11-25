@@ -19,6 +19,7 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 - [Ce que fait l'outil](#ce-que-fait-loutil)
 - [Les douze valeurs](#les-douze-valeurs)
 - [Démarrage rapide](#démarrage-rapide)
+- [Nombre de grilles](#nombre-de-grilles)
 - [Comment la grille est calculée](#comment-la-grille-est-calculée)
 - [Mode Auto IA](#mode-auto-ia)
 - [Langues](#langues)
@@ -32,9 +33,9 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 
 - **Un seul écran, pas de défilement** — en-tête, mode, paire, quatre indicateurs, puis les douze cases de la grille. Tout tient dans un téléphone, même en 390 × 844. Seuls le volet d'actualités et son contenu défilent.
 - **Aucune liste de paires** — en mode manuel vous tapez le symbole (`BTC`, `BTCUSDT`, `ethusdt`), il est normalisé et vérifié contre les filtres Binance. En mode auto, c'est le scan qui choisit la paire.
-- **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ».
+- **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ». Le nombre de grilles reste modifiable : saisie directe, boutons − / +, ou retour au calcul automatique.
 - **Calcul Futures** — mode de marge isolé, levier, marge par grille, quantité par grille arrondie au `stepSize`, bornes arrondies au `tickSize`, TP et SL, largeur de plage et profit net par grille après frais.
-- **Trois langues** — français, anglais, espagnol. Le sélecteur de l'en-tête remplace tout le texte, y compris les nombres (séparateurs et formats locaux). Le choix est mémorisé.
+- **Langue choisie toute seule** — au premier lancement, la page déduit la langue du fuseau horaire (français en Algérie, au Maroc, en Tunisie, au Sénégal, en France, au Québec) puis de la langue du navigateur, avec l'anglais en repli. Le bouton globe de l'en-tête passe à la langue suivante et mémorise le choix.
 - **Volet d'actualités** — un panneau coulissant liste les annonces Binance (listings, radiations, maintenance, API, airdrops) avec leur date relative, sans clé d'API.
 - **Installable** — bouton d'installation, `manifest`, service worker et cache : l'app s'ouvre en plein écran et démarre hors ligne.
 - **Zéro dépendance** — une seule page HTML, pas de framework, pas de build, aucune clé, aucun ordre envoyé.
@@ -48,7 +49,7 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 | **Marge** | Le mode de marge, `ISOLATED` par défaut |
 | **Borne basse** | Limite inférieure de la grille |
 | **Borne haute** | Limite supérieure de la grille |
-| **Grilles** | Nombre de niveaux entre les deux bornes |
+| **Grilles** | Nombre de niveaux, modifiable de 2 à 150 |
 | **Mode grille** | `ARITHMETIC` (pas fixe) ou `GEOMETRIC` (pas en pourcentage) |
 | **Marge/grille** | Capital engagé par niveau |
 | **Marge totale** | Capital total immobilisé par le bot |
@@ -57,6 +58,17 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 | **SL** | Stop de sécurité sous la borne basse |
 
 Les valeurs sont copiées sans séparateur de milliers et avec le point décimal (`55847.77`), c'est-à-dire exactement ce que Binance attend dans un champ numérique.
+
+## Nombre de grilles
+
+Le champ **Grilles** est un vrai champ de saisie, pas une valeur figée :
+
+- **Automatique** (par défaut) : le nombre est déduit de la largeur de la plage et de la volatilité, entre 2 et 60 niveaux. La mention `auto` s'affiche dans la case.
+- **Manuel** : tapez un nombre, ou appuyez sur **−** / **+**. La case passe en `auto` cliquable pour revenir au calcul.
+- **Petit capital** : 2 ou 3 grilles suffisent pour démarrer. Avec 20 $ et un levier de 3, deux grilles passent le notionnel minimum ; le reste des valeurs (marge par grille, quantité, TP, SL) se recalcule à chaque frappe.
+- **Garde-fou** : si la marge par grille descend sous le notionnel minimum du contrat (5 $ en général), la ligne du bas passe en alerte : « marge/grille sous le minimum : réduisez les grilles ».
+
+Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'unité de temps, jusqu'à ce que vous reveniez à `auto`.
 
 ## Démarrage rapide
 
@@ -95,7 +107,16 @@ La meilleure note devient la configuration affichée. Le champ de paire passe en
 
 ## Langues
 
-Le sélecteur **FR / EN / ES** de l'en-tête traduit l'interface entière, placeholders compris, et reformate les nombres selon la langue (`59 752,01` en français, `59,752.01` en anglais). Le choix est stocké dans le navigateur et la page reprend la langue du système au premier lancement.
+Il n'y a plus de liste de langues à choisir : la page se règle toute seule.
+
+1. **Choix mémorisé** — si vous avez déjà changé de langue, c'est celui-là qui revient.
+2. **Fuseau horaire** — `Africa/Algiers`, `Africa/Casablanca`, `Africa/Tunis`, `Africa/Dakar`, `Europe/Paris`, `Europe/Brussels`, `America/Montreal` et leurs voisins donnent le français ; `Europe/Madrid`, `Atlantic/Canary` et l'Amérique latine donnent l'espagnol. Un navigateur anglais en Algérie obtient donc du français, pas de l'anglais.
+3. **Langue du navigateur** — si le fuseau n'est pas reconnu, `navigator.languages` tranche parmi les trois langues disponibles.
+4. **Repli** — anglais.
+
+Aucun appel réseau : la détection utilise le fuseau et le navigateur, pas une base d'adresses IP.
+
+Le bouton **globe** de l'en-tête affiche la langue active (`FR`, `EN`, `ES`) et passe à la suivante d'un appui, avec le nom de la langue en confirmation. Le choix est stocké et prioritaire sur la détection. Les nombres suivent la langue : `59 752,01` en français, `59,752.01` en anglais.
 
 ## Volet actualités
 

@@ -1,4 +1,4 @@
-const CACHE = 'botview-v3';
+const CACHE = 'botview-v4';
 const SHELL = [
   './',
   './index.html',
