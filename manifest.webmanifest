@@ -1,7 +1,7 @@
 {
   "name": "Trader BotView — grille Futures Binance",
   "short_name": "BotView",
-  "description": "Trader BotView — paramètres de bot de grille Futures calculés en direct : bornes, grilles, marge, levier, TP et SL, copiables en un appui. FR, EN, ES.",
+  "description": "Trader BotView — paramètres de bot de grille Futures calculés en direct : bornes, grilles, marge, levier, TP et SL, copiables en un appui. FR, EN.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",

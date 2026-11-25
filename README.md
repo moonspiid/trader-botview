@@ -33,7 +33,7 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 
 - **Un seul écran, pas de défilement** — en-tête, mode, paire, quatre indicateurs, puis les douze cases de la grille. Tout tient dans un téléphone, même en 390 × 844. Seuls le volet d'actualités et son contenu défilent.
 - **Aucune liste de paires** — en mode manuel vous tapez le symbole (`BTC`, `BTCUSDT`, `ethusdt`), il est normalisé et vérifié contre les filtres Binance. En mode auto, c'est le scan qui choisit la paire.
-- **Libellés bilingues** — chaque case affiche le terme local suivi du terme anglais en gris (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). Un trader qui colle ces valeurs dans une interface Binance en anglais retrouve immédiatement le bon champ, même si son interface est en français ou en espagnol.
+- **Libellés bilingues** — chaque case affiche le terme local suivi du terme anglais en gris (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). Un trader qui colle ces valeurs dans une interface Binance en anglais retrouve immédiatement le bon champ, même si son interface est en français.
 - **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ». Le nombre de grilles reste modifiable : saisie directe, boutons − / +, ou retour au calcul automatique.
 - **Calcul Futures** — mode de marge isolé, levier, marge par grille, quantité par grille arrondie au `stepSize`, bornes arrondies au `tickSize`, TP et SL, largeur de plage et profit net par grille après frais.
 - **Langue choisie toute seule** — au premier lancement, la page déduit la langue du fuseau horaire (français en Algérie, au Maroc, en Tunisie, au Sénégal, en France, au Québec) puis de la langue du navigateur, avec l'anglais en repli. Le bouton globe de l'en-tête passe à la langue suivante et mémorise le choix.
@@ -68,7 +68,9 @@ Le champ **Grilles** est un vrai champ de saisie, pas une valeur figée :
 - **Manuel** : tapez un nombre, ou appuyez sur **−** / **+**. La case passe en `auto` cliquable pour revenir au calcul.
 - **Petit capital** : 2 ou 3 grilles suffisent pour démarrer. Avec 20 $ et un levier de 3, deux grilles passent le notionnel minimum ; le reste des valeurs (marge par grille, quantité, TP, SL) se recalcule à chaque frappe.
 - **Capital en direct** : chaque chiffre tapé dans le champ Capital recalcule immédiatement la marge totale, la marge par grille et le nombre de grilles, sans attendre de quitter le champ. La marge totale vaut exactement le capital saisi, et la marge par grille vaut capital ÷ grilles, sans arrondi caché.
-- **Plafond forcé par le capital** : le nombre de grilles ne peut jamais dépasser ce que les fonds supportent. La limite vaut `notionnel ÷ (notionnel minimum × 1,05)`, soit 6 grilles à 12 $ avec un levier de 3, 11 à 30 $, 114 à 200 $. Tapez 150 grilles avec 20 $ : le champ se recale à 11 à la sortie, la ligne du bas indique « plafonné à 11 grilles par le capital », et les valeurs restent exploitables.
+- **Plafond forcé par le capital** : le nombre de grilles ne peut jamais dépasser ce que les fonds supportent. La limite vaut `notionnel ÷ (notionnel minimum par grille × 1,05)`, où le minimum par grille est le plus grand des deux seuils imposés par Binance : 5 $ de notionnel, et `quantité minimale × prix` — 0,001 BTC, soit 60 $ à 60 000 $.
+- **Aucune quantité impossible** : la quantité est arrondie vers le bas au pas du contrat, puis vérifiée. Si elle passe sous la quantité minimale ou si son notionnel tombe sous 5 $, l'outil refuse de produire le plan et indique le capital nécessaire : « fonds insuffisants : 42 $ minimum pour 2 grilles à 3× ». Mieux vaut ce message qu'un ordre rejeté par Binance.
+- **Données Futures bloquées** : si l'API Futures est inaccessible, la pastille d'état passe à l'ambre et un infobulle prévient que les filtres spot sont utilisés — les quantités minimales y sont plus permissives, à vérifier avant de lancer le bot.
 
 Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'unité de temps, jusqu'à ce que vous reveniez à `auto`.
 
@@ -113,15 +115,15 @@ La meilleure note devient la configuration affichée. Le champ de paire passe en
 Il n'y a plus de liste de langues à choisir : la page se règle toute seule.
 
 1. **Choix mémorisé** — si vous avez déjà changé de langue, c'est celui-là qui revient.
-2. **Fuseau horaire** — `Africa/Algiers`, `Africa/Casablanca`, `Africa/Tunis`, `Africa/Dakar`, `Europe/Paris`, `Europe/Brussels`, `America/Montreal` et leurs voisins donnent le français ; `Europe/Madrid`, `Atlantic/Canary` et l'Amérique latine donnent l'espagnol. Un navigateur anglais en Algérie obtient donc du français, pas de l'anglais.
-3. **Langue du navigateur** — si le fuseau n'est pas reconnu, `navigator.languages` tranche parmi les trois langues disponibles.
+2. **Fuseau horaire** — `Africa/Algiers`, `Africa/Casablanca`, `Africa/Tunis`, `Africa/Dakar`, `Europe/Paris`, `Europe/Brussels`, `America/Montreal` et leurs voisins donnent le français. Un navigateur anglais en Algérie obtient donc du français, pas de l'anglais.
+3. **Langue du navigateur** — si le fuseau n'est pas reconnu, `navigator.languages` tranche entre le français et l'anglais, et rien d'autre.
 4. **Repli** — anglais.
 
 Aucun appel réseau : la détection utilise le fuseau et le navigateur, pas une base d'adresses IP.
 
 La langue locale et l'anglais fonctionnent ensemble : l'interface est dans la langue détectée, chaque libellé de case porte son équivalent anglais en gris, et toute chaîne absente d'une traduction retombe sur l'anglais plutôt que sur une clé technique.
 
-Le bouton **globe** de l'en-tête affiche la langue active (`FR`, `EN`, `ES`) et passe à la suivante d'un appui, avec le nom de la langue en confirmation. Le choix est stocké et prioritaire sur la détection. Les nombres suivent la langue : `59 752,01` en français, `59,752.01` en anglais.
+L'interface ne bascule qu'entre deux langues : le français et l'anglais. Un fuseau espagnol, portugais, arabe ou japonais tombe sur l'anglais — aucune troisième langue n'est proposée. Le bouton **globe** de l'en-tête affiche la langue active (`FR` ou `EN`) et bascule de l'une à l'autre d'un appui, avec le nom de la langue en confirmation. Le choix est stocké et prioritaire sur la détection. Les nombres suivent la langue : `59 752,01` en français, `59,752.01` en anglais.
 
 ## Volet actualités
 

@@ -69,6 +69,7 @@ body{display:flex;align-items:center;justify-content:center}
 .status.ok i{background:var(--up);box-shadow:0 0 6px rgba(61,220,151,.6)}
 .status.busy i{background:var(--acc);animation:pulse 1s infinite}
 .status.err i{background:var(--dn)}
+.status.spot i{background:var(--acc)}
 @keyframes pulse{50%{opacity:.25}}
 .controls{display:grid;gap:6px}
 .crow{display:grid;grid-template-columns:1fr auto;gap:6px}
@@ -300,7 +301,7 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const API = 'https://data-api.binance.vision';
 const FAPI = 'https://fapi.binance.com';
-const LOC = { fr: 'fr-FR', en: 'en-US', es: 'es-ES' };
+const LOC = { fr: 'fr-FR', en: 'en-US' };
 
 /* ============================== i18n ============================== */
 const I18N = {
@@ -315,6 +316,8 @@ const I18N = {
     netPerGrid: '{n} % net/grille', widthNote: 'plage {n} %', riskWarn: 'levier {n}x : surveillez la liquidation',
     scanning: 'Analyse', loading: 'Calcul', ready: 'Prêt',
     errPair: 'Paire inconnue', errNet: 'Réseau indisponible', errSmall: 'Capital trop faible pour {n} grilles',
+    errFunds: 'fonds insuffisants : {n} $ minimum pour 2 grilles à {lev}×',
+    spotHint: 'API Futures bloquée : filtres spot utilisés, vérifiez la quantité minimale avant de lancer le bot',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
     gridsCap: 'plafonné à {n} grilles par le capital',
     newsTitle: 'Actualités du marché', newsAll: 'Tout voir ↗', newsFutures: 'Futures ↗',
@@ -346,27 +349,6 @@ const I18N = {
     tagList: 'Listing', tagDelist: 'Delisting', tagMaint: 'Maintenance', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'News',
     emptyHint: 'Type a pair and analyse, or let the AI pick one.'
   },
-  es: {
-    tagline: 'Rejilla Futuros', modeManual: 'Manual', modeAuto: 'Auto IA', analyze: 'Analizar', scan: 'Escanear',
-    capital: 'Capital', leverage: 'Apalancamiento',
-    kPrice: 'Precio', cSymbol: 'Par', cLev: 'Apalanc.', cMargin: 'Margen', cLower: 'Límite inferior',
-    cUpper: 'Límite superior', cGrids: 'Rejillas', cGridMode: 'Modo rejilla', cPerGrid: 'Margen/rejilla',
-    cTotal: 'Margen total', cQty: 'Cant./rejilla', cTp: 'TP', cSl: 'SL',
-    copy: 'Copiar', copied: 'Copiado', copyFail: 'No se pudo copiar',
-    geo: 'Geométrica', arith: 'Aritmética', isolated: 'Aislado', cross: 'Cruzado',
-    netPerGrid: '{n} % neto/rejilla', widthNote: 'rango {n} %', riskWarn: 'apalanc. {n}x: vigila la liquidación',
-    scanning: 'Analizando', loading: 'Cargando', ready: 'Listo',
-    errPair: 'Par desconocido', errNet: 'Red no disponible', errSmall: 'Capital insuficiente para {n} rejillas',
-    auto: 'auto', langName: 'Español', warnMinN: 'margen/rejilla bajo el mínimo de {n} $: reduce las rejillas',
-    gridsCap: 'limitado a {n} rejillas por el capital',
-    newsTitle: 'Noticias del mercado', newsAll: 'Ver todo ↗', newsFutures: 'Futuros ↗',
-    newsEmpty: 'Sin noticias disponibles.', newsError: 'Noticias no disponibles', retry: 'Reintentar',
-    installTitle: 'Instalar Trader BotView', ok: 'Entendido',
-    installIos: ['Toca <b>Compartir</b> en Safari.', 'Elige <b>Añadir a pantalla de inicio</b>.', 'Toca <b>Añadir</b>.'],
-    installOther: ['Abre el menú del navegador.', 'Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.', 'Se abre a pantalla completa.'],
-    tagList: 'Listado', tagDelist: 'Exclusión', tagMaint: 'Mantenimiento', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'Noticia',
-    emptyHint: 'Escribe un par y analiza, o deja que la IA elija.'
-  }
 };
 let lang = 'fr';
 const t = (key, vars) => {
@@ -377,23 +359,21 @@ const t = (key, vars) => {
 };
 
 /* ============================== langue ============================== */
-const LANG_ORDER = ['fr', 'en', 'es'];
+const LANG_ORDER = ['fr', 'en'];
 const TZ_FR = /^(Africa\/(Algiers|Tunis|Casablanca|El_Aaiun|Dakar|Abidjan|Bamako|Ouagadougou|Niamey|Lome|Porto-Novo|Cotonou|Conakry|Bissau|Douala|Libreville|Brazzaville|Kinshasa|Lubumbashi|Antananarivo|Bangui|NDjamena|Djibouti|Kigali|Bujumbura|Moroni)|Europe\/(Paris|Brussels|Luxembourg|Monaco)|America\/(Guadeloupe|Martinique|Cayenne|Port-au-Prince|Montreal|Miquelon))/;
-const TZ_ES = /^(Europe\/Madrid|Atlantic\/(Canary|Madeira)|America\/(Mexico_City|Monterrey|Cancun|Merida|Bogota|Lima|Santiago|Asuncion|Caracas|Guayaquil|La_Paz|Montevideo|Argentina\/|Guatemala|Costa_Rica|El_Salvador|Tegucigalpa|Managua|Panama|Havana|Puerto_Rico|Santo_Domingo))/;
 
 function tzLang() {
   let tz = '';
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { tz = ''; }
   if (!tz) return null;
   if (TZ_FR.test(tz)) return 'fr';
-  if (TZ_ES.test(tz)) return 'es';
   return null;
 }
 function navLang() {
   const list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
   for (let i = 0; i < list.length; i++) {
     const base = String(list[i] || '').slice(0, 2).toLowerCase();
-    if (I18N[base]) return base;
+    if (base === 'fr' || base === 'en') return base;
   }
   return null;
 }
@@ -458,6 +438,7 @@ function toast(msg) {
 function setStatus(kind, text) {
   const s = $('#status');
   s.className = 'status ' + (kind || '');
+  s.title = kind === 'spot' ? t('spotHint') : '';
   $('#statusTxt').textContent = text || '';
 }
 async function copyText(text) {
@@ -673,15 +654,18 @@ function buildGrid(m, capital, lev, override) {
   const stepTarget = clamp(m.atrPct * 0.55, 0.5, 2.6);
   const manual = Number.isFinite(override) && override >= MIN_GRIDS;
   const wanted = manual ? Math.round(override) : Math.round(width / stepTarget);
-  const maxByCapital = Math.max(MIN_GRIDS, Math.floor(notional / (minN * 1.05)));
+  const minPerGrid = Math.max(minN, (minQ || 0) * m.price);
+  const need = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / L);
+  const maxByCapital = Math.floor(notional / (minPerGrid * 1.05));
+  if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, minPerGrid: minPerGrid };
   const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
   const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
   const capped = wanted > cap;
   const perNotional = notional / count;
-  if (perNotional < minN) return { error: 'small', count: count };
+  if (perNotional < minPerGrid) return { error: 'funds', count: count, need: need, minPerGrid: minPerGrid };
   let qty = roundStep(perNotional / m.price, step, 'floor');
   if (qty < minQ) qty = roundStep(minQ, step, 'round');
-  if (!qty) return { error: 'small', count: count };
+  if (!qty || qty * m.price < minN) return { error: 'funds', count: count, need: need, minPerGrid: minPerGrid };
   const geo = width >= 12 || m.price >= 5000;
   const slRaw = lower * (1 - clamp(m.atrPct * 0.9 / 100, 0.012, 0.06));
   const stepPct = width / count;
@@ -737,7 +721,7 @@ function render() {
   if (!m || !p || p.error) {
     $('#kpis').innerHTML = kpiHtml(label('kPrice'), '—') + kpiHtml('ATR', '—') + kpiHtml('ADX', '—') + kpiHtml('FUNDING', '—');
     $('#cfg').innerHTML = CELL_KEYS.map(k => cellHtml(k, '—', '')).join('');
-    $('#note').innerHTML = p && p.error ? '<span class="bad">' + esc(t('errSmall', { n: p.count })) + '</span>' : esc(t('emptyHint'));
+    $('#note').innerHTML = p && p.error ? '<span class="bad">' + esc(errText(p)) + '</span>' : esc(t('emptyHint'));
     return;
   }
   $('#kpis').innerHTML =
@@ -793,12 +777,19 @@ function gridsCell(p) {
     '</div>';
 }
 
+function errText(p) {
+  if (!p) return '';
+  return p.error === 'funds'
+    ? t('errFunds', { n: nf(p.need || 0, 0), lev: p.lev || 1 })
+    : t('errSmall', { n: p.count || MIN_GRIDS });
+}
+
 function paintError(p) {
   const cells = $$('#cfg .cell');
   cells.forEach(c => { const v = c.querySelector('.v'); if (v) v.textContent = '—'; });
   const cp = cells[5] && cells[5].querySelector('[data-copy]');
   if (cp) cp.setAttribute('data-copy', '');
-  $('#note').innerHTML = '<span class="bad">' + esc(t('errSmall', { n: p.count || MIN_GRIDS })) + '</span>';
+  $('#note').innerHTML = '<span class="bad">' + esc(errText(p)) + '</span>';
 }
 
 function updateValues() {
@@ -859,7 +850,7 @@ async function runManual() {
     state.metrics = m;
     state.plan = buildGrid(m, state.capital, state.lev, state.countOverride);
     render();
-    setStatus('ok', symbol);
+    setStatus(exchange && exchange.futures ? 'ok' : 'spot', symbol);
   } catch (e) {
     setStatus('err', e.message === 'unknown' ? t('errPair') : t('errNet'));
     toast(e.message === 'unknown' ? t('errPair') : t('errNet'));
