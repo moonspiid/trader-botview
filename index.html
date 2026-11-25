@@ -258,7 +258,7 @@ body{display:flex;align-items:center;justify-content:center}
         <button type="button" data-tf="4h" class="active">4h</button>
         <button type="button" data-tf="1d">1d</button>
       </div>
-      <label class="mini"><span data-i18n="capital">Capital</span><input id="capital" type="number" min="20" step="10" value="1000" inputmode="decimal"></label>
+      <label class="mini"><span data-i18n="capital">Capital</span><input id="capital" type="number" min="1" step="1" value="1000" inputmode="decimal"></label>
       <label class="mini"><span data-i18n="leverage">Levier</span><input id="lev" type="number" min="1" max="10" step="1" value="3" inputmode="numeric"></label>
     </div>
   </section>
@@ -660,7 +660,7 @@ function buildGrid(m, capital, lev, override) {
   const tick = f.tick || '0.01', step = f.step || '0.00001';
   const minN = f.minN || 5, minQ = f.minQ || 0;
   const L = clamp(Math.round(lev) || 1, 1, 10);
-  const total = Math.max(capital || 0, 10);
+  const total = Math.max(Number(capital) || 0, 0);
   const notional = total * L;
   const width = clamp(m.atrPct * 6.2, 7, 26) * (m.adx != null && m.adx >= 25 ? 0.85 : 1);
   const center = m.price * (1 - clamp(m.bias, -60, 60) / 100 * 0.006);
@@ -748,7 +748,7 @@ function rowsFor(p) {
     ['cUpper', nf(p.upper, p.dec), raw(p.upper)],
     ['cGrids', String(p.count), p.count],
     ['cGridMode', p.geo ? t('geo') : t('arith'), p.geo ? 'GEOMETRIC' : 'ARITHMETIC'],
-    ['cPerGrid', nf(p.perGrid, 2) + ' $', raw(p.perGrid)],
+    ['cPerGrid', nf(p.perGrid, 2) + ' $', String(Math.round(p.perGrid * 100) / 100)],
     ['cTotal', nf(p.total, 2) + ' $', raw(p.total)],
     ['cQty', nf(p.qty, qtyDec(p.qty)), raw(p.qty)],
     ['cTp', nf(p.tp, p.dec), raw(p.tp)],
@@ -779,9 +779,20 @@ function gridsCell(p) {
     '</div>';
 }
 
+function paintError(p) {
+  const cells = $$('#cfg .cell');
+  cells.forEach(c => { const v = c.querySelector('.v'); if (v) v.textContent = '—'; });
+  const cp = cells[5] && cells[5].querySelector('[data-copy]');
+  if (cp) cp.setAttribute('data-copy', '');
+  $('#note').innerHTML = '<span class="bad">' + esc(t('errSmall', { n: p.count || MIN_GRIDS })) + '</span>';
+}
+
 function updateValues() {
   const m = state.metrics, p = state.plan;
-  if (!m || !p || p.error) return;
+  if (!m || !p) return;
+  if (p.error) { paintError(p); return; }
+  const gi = $('#grids');
+  if (gi && document.activeElement !== gi && gi.value !== String(p.count)) gi.value = p.count;
   const rows = rowsFor(p);
   const cells = $$('#cfg .cell');
   rows.forEach((r, i) => {
@@ -1055,9 +1066,24 @@ function bind() {
     const s = normalizePair(e.target.value);
     if (s) e.target.value = s;
   });
+  const readNum = v => parseFloat(String(v).replace(',', '.'));
+  $('#capital').addEventListener('input', e => {
+    const v = readNum(e.target.value);
+    if (!Number.isFinite(v) || v <= 0) return;
+    state.capital = v;
+    recompute(true);
+  });
   $('#capital').addEventListener('change', e => {
-    state.capital = Math.max(10, parseFloat(e.target.value) || 0);
+    const v = readNum(e.target.value);
+    state.capital = Number.isFinite(v) && v > 0 ? v : state.capital;
+    e.target.value = state.capital;
     recompute();
+  });
+  $('#lev').addEventListener('input', e => {
+    const v = parseInt(String(e.target.value).replace(/[^0-9]/g, ''), 10);
+    if (!Number.isFinite(v) || v < 1) return;
+    state.lev = clamp(v, 1, 10);
+    recompute(true);
   });
   $('#lev').addEventListener('change', e => {
     state.lev = clamp(parseInt(e.target.value, 10) || 1, 1, 10);

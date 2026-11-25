@@ -66,6 +66,7 @@ Le champ **Grilles** est un vrai champ de saisie, pas une valeur figée :
 - **Automatique** (par défaut) : le nombre est déduit de la largeur de la plage et de la volatilité, entre 2 et 60 niveaux. La mention `auto` s'affiche dans la case.
 - **Manuel** : tapez un nombre, ou appuyez sur **−** / **+**. La case passe en `auto` cliquable pour revenir au calcul.
 - **Petit capital** : 2 ou 3 grilles suffisent pour démarrer. Avec 20 $ et un levier de 3, deux grilles passent le notionnel minimum ; le reste des valeurs (marge par grille, quantité, TP, SL) se recalcule à chaque frappe.
+- **Capital en direct** : chaque chiffre tapé dans le champ Capital recalcule immédiatement la marge totale, la marge par grille et le nombre de grilles, sans attendre de quitter le champ. La marge totale vaut exactement le capital saisi, et la marge par grille vaut capital ÷ grilles, sans arrondi caché.
 - **Garde-fou** : si la marge par grille descend sous le notionnel minimum du contrat (5 $ en général), la ligne du bas passe en alerte : « marge/grille sous le minimum : réduisez les grilles ».
 
 Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'unité de temps, jusqu'à ce que vous reveniez à `auto`.
@@ -85,7 +86,8 @@ Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'
 - **Centrage** — le milieu de la plage est décalé de quelques dixièmes de pourcent contre le biais du moment (EMA 20/50, histogramme MACD, RSI), pour laisser plus de place du côté où le prix respire.
 - **Nombre de grilles** — pas visé à 55 % de l'ATR, borné entre 0,5 % et 2,6 % du prix, puis entre 8 et 60 niveaux. Le compte est réduit tant que la marge par grille ne couvre pas le notionnel minimum du contrat.
 - **Mode géométrique** — retenu quand la plage dépasse 12 % ou quand le prix dépasse 5 000, sinon arithmétique.
-- **Levier et marge** — notionnel = capital × levier ; marge par grille = capital / nombre de grilles ; quantité = notionnel / grilles / prix, arrondie vers le bas au `stepSize`.
+- **Levier et marge** — notionnel = capital × levier ; marge totale = capital saisi, au centime près ; marge par grille = capital ÷ nombre de grilles ; quantité = notionnel / grilles / prix, arrondie vers le bas au `stepSize`.
+- **Nombre de grilles selon le capital** — en automatique, le nombre de niveaux est plafonné par le capital : à 10 $ et levier 3, cinq grilles ; à 100 $, onze. Il remonte dès que le capital augmente, sans quitter le champ.
 - **Stop** — 0,9 ATR sous la borne basse, borné entre 1,2 % et 6 %.
 - **Profit net** — pas de grille moins 0,04 % de frais aller-retour (maker sur les deux côtés).
 
