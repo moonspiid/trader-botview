@@ -313,7 +313,7 @@ const I18N = {
     cTotal: 'Marge totale', cQty: 'Qté/grille', cTp: 'TP', cSl: 'SL',
     copy: 'Copier', copied: 'Copié', copyFail: 'Copie impossible',
     geo: 'Géométrique', arith: 'Arithmétique', isolated: 'Isolé', cross: 'Croisé',
-    netPerGrid: '{n} % net/grille', widthNote: 'plage {n} %', riskWarn: 'levier {n}x : surveillez la liquidation',
+    netPerGrid: '{n} % net/grille', widthNote: 'plage {n} %', riskWarn: 'levier {n}× : surveillez la liquidation',
     scanning: 'Analyse', loading: 'Calcul', ready: 'Prêt',
     errPair: 'Paire inconnue', errNet: 'Réseau indisponible', errSmall: 'Capital trop faible pour {n} grilles',
     errFunds: 'fonds insuffisants : {n} $ minimum pour 2 grilles à {lev}×',
@@ -336,7 +336,7 @@ const I18N = {
     cTotal: 'Total margin', cQty: 'Qty/grid', cTp: 'TP', cSl: 'SL',
     copy: 'Copy', copied: 'Copied', copyFail: 'Copy failed',
     geo: 'Geometric', arith: 'Arithmetic', isolated: 'Isolated', cross: 'Cross',
-    netPerGrid: '{n} % net/grid', widthNote: 'range {n} %', riskWarn: 'leverage {n}x: watch liquidation',
+    netPerGrid: '{n} % net/grid', widthNote: 'range {n} %', riskWarn: 'leverage {n}×: watch liquidation',
     scanning: 'Scanning', loading: 'Loading', ready: 'Ready',
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
@@ -639,7 +639,7 @@ function scoreForGrid(m) {
 }
 
 const MIN_GRIDS = 2, MAX_GRIDS = 150, AUTO_MAX = 60;
-const FEE_RESERVE = 0.01, MAX_AUTO_LEV = 5;
+const FEE_RATE = 0.0005, MAX_AUTO_LEV = 10, MIN_BUF = 1.001;
 
 function buildGrid(m, capital, lev, override) {
   const f = m.filters || {};
@@ -647,19 +647,20 @@ function buildGrid(m, capital, lev, override) {
   const minN = f.minN || 5, minQ = f.minQ || 0;
   const reqLev = clamp(Math.round(lev) || 1, 1, 10);
   const total = Math.max(Number(capital) || 0, 0);
-  const reserve = total * FEE_RESERVE;
-  const invested = Math.max(total - reserve, 0);
   const minPerGrid = Math.max(minN, (minQ || 0) * m.price);
-  const needLev = Math.max(reqLev, MAX_AUTO_LEV);
-  const need = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / (needLev * (1 - FEE_RESERVE)));
+  const floorNotional = MIN_GRIDS * minPerGrid * MIN_BUF;
 
-  let L = reqLev, levRaised = false;
-  if (invested > 0 && invested * L / (minPerGrid * 1.05) < MIN_GRIDS) {
-    const lMin = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / invested);
-    if (lMin <= MAX_AUTO_LEV) { L = Math.max(reqLev, lMin); levRaised = L > reqLev; }
+  let L = reqLev, reserve = total * L * FEE_RATE, invested = Math.max(total - reserve, 0);
+  if (invested > 0 && invested * L < floorNotional) {
+    const lMin = Math.ceil(floorNotional / (invested * (1 - MAX_AUTO_LEV * FEE_RATE)));
+    if (lMin > reqLev && lMin <= MAX_AUTO_LEV) L = lMin;
   }
+  reserve = total * L * FEE_RATE;
+  invested = Math.max(total - reserve, 0);
+  const needLev = Math.max(reqLev, MAX_AUTO_LEV);
+  const need = Math.ceil(floorNotional / (needLev * (1 - needLev * FEE_RATE)));
   const notional = invested * L;
-  const maxByCapital = Math.floor(notional / (minPerGrid * 1.05));
+  const maxByCapital = Math.floor(notional / (minPerGrid * MIN_BUF));
   if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, lev: needLev, minPerGrid: minPerGrid };
 
   const width = clamp(m.atrPct * 6.2, 7, 26) * (m.adx != null && m.adx >= 25 ? 0.85 : 1);
@@ -669,6 +670,7 @@ function buildGrid(m, capital, lev, override) {
   const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
   const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
   const capped = wanted > cap;
+  const levRaised = L > reqLev;
   const widthEff = capped ? clamp(count * stepTarget, 4, width) : width;
   const center = m.price * (1 - clamp(m.bias, -60, 60) / 100 * 0.006);
   const lower = center * (1 - widthEff / 200);
@@ -682,8 +684,7 @@ function buildGrid(m, capital, lev, override) {
   const slRaw = lower * (1 - clamp(m.atrPct * 0.9 / 100, 0.012, 0.06));
   const stepPct = widthEff / count;
   const perGrid = invested / count;
-  const marginOk = perGrid * count <= total + 1e-6 && qty * m.price >= minN;
-  return {
+  const plan = {
     symbol: m.symbol, lev: L, levRaised: levRaised, marginMode: 'ISOLATED',
     dec: clamp(decimalsOf(tick), 0, 8),
     lower: roundStep(lower, tick, 'round'),
@@ -692,11 +693,29 @@ function buildGrid(m, capital, lev, override) {
     capped: capped, cap: cap,
     warn: perNotional < minN ? 'minNotional' : null, minN: minN, minPerGrid: minPerGrid,
     perGrid: perGrid, total: invested, capital: total, reserve: reserve,
-    notional: notional, qty: qty, marginOk: marginOk,
+    notional: notional, qty: qty,
     tp: roundStep(upper, tick, 'round'),
     sl: roundStep(slRaw, tick, 'round'),
     netPerGrid: stepPct - 0.04
   };
+  return validatePlan(plan, m, total, minPerGrid, step, minN, minQ, need);
+}
+
+function validatePlan(p, m, capital, minPerGrid, step, minN, minQ, need) {
+  const stepN = Number(step) || 0;
+  const fails = [];
+  if (!(p.count >= MIN_GRIDS)) fails.push('count');
+  if (!(p.lev >= 1 && p.lev <= 10)) fails.push('lev');
+  if (!(p.qty > 0)) fails.push('qty');
+  if (minQ && p.qty < minQ - 1e-12) fails.push('minQty');
+  if (p.qty * m.price < minN - 1e-9) fails.push('minNotional');
+  if (p.qty * m.price < minPerGrid - 1e-9) fails.push('minPerGrid');
+  if (stepN > 0 && Math.abs(p.qty / stepN - Math.round(p.qty / stepN)) > 1e-9) fails.push('step');
+  if (p.perGrid * p.count > capital + 1e-6) fails.push('margin');
+  if (p.total + p.reserve > capital + 1e-6) fails.push('reserve');
+  if (fails.length) return { error: 'funds', count: p.count, need: need, lev: p.lev, minPerGrid: minPerGrid, fails: fails };
+  p.valid = true;
+  return p;
 }
 
 /* ============================== state ============================== */
@@ -774,7 +793,7 @@ function noteHtml(p) {
     : t('widthNote', { n: nf(p.width, 1) }));
   if (p.levRaised) bits.push('<span class="warn">' + esc(t('levBoost', { n: p.lev })) + '</span>');
   else if (p.lev >= 5) bits.push('<span class="warn">' + esc(t('riskWarn', { n: p.lev })) + '</span>');
-  if (p.reserve >= 0.5) bits.push(t('feeNote', { n: nf(p.reserve, 2) }));
+  if (p.reserve >= 0.01) bits.push(t('feeNote', { n: nf(p.reserve, 2) }));
   return bits.join(' · ');
 }
 
