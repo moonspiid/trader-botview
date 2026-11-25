@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-label="Trader BotView">
+        <defs>
+          <linearGradient id="bvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a2434"/><stop offset="1" stop-color="#070a10"/></linearGradient>
+          <linearGradient id="bvl" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#57e6c8"/><stop offset=".55" stop-color="#9fe8b4"/><stop offset="1" stop-color="#f0b90b"/></linearGradient>
+          <linearGradient id="bvb" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#8a6a0c" stop-opacity=".55"/><stop offset="1" stop-color="#f0b90b" stop-opacity=".95"/></linearGradient>
+          <radialGradient id="bvg2" cx=".78" cy=".18" r=".7"><stop offset="0" stop-color="#f0b90b" stop-opacity=".18"/><stop offset="1" stop-color="#f0b90b" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="64" height="64" rx="17" fill="url(#bvg)"/>
+        <rect width="64" height="64" rx="17" fill="url(#bvg2)"/>
+        <rect x=".75" y=".75" width="62.5" height="62.5" rx="16.25" fill="none" stroke="#2b3d55"/>
+        <g fill="url(#bvb)">
+          <rect x="13" y="38" width="5" height="12" rx="1.6"/><rect x="22" y="33" width="5" height="17" rx="1.6"/>
+          <rect x="31" y="40" width="5" height="10" rx="1.6"/><rect x="40" y="30" width="5" height="20" rx="1.6"/>
+          <rect x="49" y="24" width="5" height="26" rx="1.6"/>
+        </g>
+        <path d="M14 33 L23 27 L32 31 L41 21 L51 15" fill="none" stroke="url(#bvl)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="51" cy="15" r="6.4" fill="#f0b90b" opacity=".18"/>
+        <circle cx="51" cy="15" r="3.3" fill="#f0b90b"/>
+      </svg>

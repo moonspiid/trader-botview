@@ -221,6 +221,45 @@ footer b{color:var(--muted)}
   box-shadow:0 20px 50px -20px #000}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+
+/* ---------- app layout ---------- */
+.app{display:grid;grid-template-columns:minmax(296px,332px) minmax(0,1fr);gap:14px;align-items:start}
+.side{position:sticky;top:14px;display:grid;gap:12px;max-height:calc(100vh - 28px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#1e2b3d transparent;padding-right:2px}
+.side::-webkit-scrollbar{width:6px}
+.side::-webkit-scrollbar-thumb{background:#1e2b3d;border-radius:6px}
+.main{display:grid;gap:14px;min-width:0}
+.side #form{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-items:end}
+.side .field{min-width:0}
+.side .field.grow{grid-column:1/-1}
+.side .field.action{grid-column:1/-1}
+.side .field.action .btn{width:100%}
+.side .seg{width:100%}
+.side .seg button{flex:1;padding:7px 4px}
+.side .lbl{margin-bottom:5px}
+.side .chips{margin-top:11px;gap:5px}
+.side .chip{font-size:10.5px;padding:4px 8px}
+.side .meta{margin-top:11px;padding-top:10px;gap:8px 14px;font-size:10.5px}
+.side .meta .auto{margin-left:0}
+.mkt{display:grid}
+.mkt .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(26,36,52,.55);font-size:12px}
+.mkt .row:last-child{border-bottom:0}
+.mkt .k{color:var(--dim)}
+.mkt .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
+.mkt .row.up .v{color:var(--up)}
+.mkt .row.down .v{color:var(--down)}
+.mkt-sub{margin-top:9px;font-family:var(--mono);font-size:10px;color:#44536a;line-height:1.5}
+.side .regime-desc{font-size:11.5px;margin-bottom:12px;line-height:1.55}
+.side .bias,.side .conf{margin-bottom:10px}
+.brand .logo{width:44px;height:44px;display:block;border-radius:12px;box-shadow:0 12px 30px -16px rgba(240,185,11,.65)}
+.copy-mini{padding:3px 9px;font-size:10px}
+.exit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.val-chip{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#080d14;border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
+.val-chip .lab{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+.val-chip .num{font-family:var(--mono);font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exit-actions{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+@media (max-width:1080px){.app{grid-template-columns:1fr}.side{position:static;max-height:none;overflow:visible}.exit-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){.exit-grid{grid-template-columns:1fr}}
+
 @media (max-width:1080px){
   .kpis{grid-template-columns:repeat(3,1fr)}
   .cols{grid-template-columns:1fr}
@@ -249,7 +288,25 @@ footer b{color:var(--muted)}
 
   <header class="top">
     <div class="brand">
-      <div class="mark" aria-hidden="true"><span class="c up"></span><span class="c dn"></span><span class="c up"></span></div>
+      <svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Trader BotView">
+        <defs>
+          <linearGradient id="bvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a2434"/><stop offset="1" stop-color="#070a10"/></linearGradient>
+          <linearGradient id="bvl" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#57e6c8"/><stop offset=".55" stop-color="#9fe8b4"/><stop offset="1" stop-color="#f0b90b"/></linearGradient>
+          <linearGradient id="bvb" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#8a6a0c" stop-opacity=".55"/><stop offset="1" stop-color="#f0b90b" stop-opacity=".95"/></linearGradient>
+          <radialGradient id="bvg2" cx=".78" cy=".18" r=".7"><stop offset="0" stop-color="#f0b90b" stop-opacity=".18"/><stop offset="1" stop-color="#f0b90b" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="64" height="64" rx="17" fill="url(#bvg)"/>
+        <rect width="64" height="64" rx="17" fill="url(#bvg2)"/>
+        <rect x=".75" y=".75" width="62.5" height="62.5" rx="16.25" fill="none" stroke="#2b3d55"/>
+        <g fill="url(#bvb)">
+          <rect x="13" y="38" width="5" height="12" rx="1.6"/><rect x="22" y="33" width="5" height="17" rx="1.6"/>
+          <rect x="31" y="40" width="5" height="10" rx="1.6"/><rect x="40" y="30" width="5" height="20" rx="1.6"/>
+          <rect x="49" y="24" width="5" height="26" rx="1.6"/>
+        </g>
+        <path d="M14 33 L23 27 L32 31 L41 21 L51 15" fill="none" stroke="url(#bvl)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="51" cy="15" r="6.4" fill="#f0b90b" opacity=".18"/>
+        <circle cx="51" cy="15" r="3.3" fill="#f0b90b"/>
+      </svg>
       <div>
         <h1>Trader <span>BotView</span></h1>
         <p>Analyse marché &amp; configuration de bot Binance</p>
@@ -261,61 +318,72 @@ footer b{color:var(--muted)}
     </div>
   </header>
 
-  <section class="card controls" aria-label="Paramètres d'analyse">
+  <div class="app">
+    <aside class="side" aria-label="Panneau de contrôle">
+      <section class="card controls" aria-label="Paramètres d'analyse">
     <form id="form" autocomplete="off" novalidate>
-      <div class="field grow">
-        <label class="lbl" for="symbol">Paire Spot</label>
-        <input id="symbol" list="symbolList" value="BTCUSDT" spellcheck="false" placeholder="BTCUSDT" aria-describedby="symbolHint">
-        <datalist id="symbolList"></datalist>
-      </div>
-      <div class="field">
-        <label class="lbl">Unité de temps</label>
-        <div class="seg" id="tfSeg" role="group" aria-label="Unité de temps">
-          <button type="button" data-tf="15m">15m</button>
-          <button type="button" data-tf="1h">1h</button>
-          <button type="button" data-tf="4h" class="on">4h</button>
-          <button type="button" data-tf="1d">1d</button>
+          <div class="field grow">
+            <label class="lbl" for="symbol">Paire Spot</label>
+            <input id="symbol" list="symbolList" value="BTCUSDT" spellcheck="false" placeholder="BTCUSDT" aria-describedby="symbolHint">
+            <datalist id="symbolList"></datalist>
+          </div>
+          <div class="field">
+            <label class="lbl">Unité de temps</label>
+            <div class="seg" id="tfSeg" role="group" aria-label="Unité de temps">
+              <button type="button" data-tf="15m">15m</button>
+              <button type="button" data-tf="1h">1h</button>
+              <button type="button" data-tf="4h" class="on">4h</button>
+              <button type="button" data-tf="1d">1d</button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="capital">Capital (USDT)</label>
+            <input id="capital" type="number" min="10" step="10" value="1000" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label class="lbl" for="risk">Risque / trade %</label>
+            <input id="risk" type="number" min="0.1" max="10" step="0.1" value="1" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label class="lbl" for="fee">Frais / ordre %</label>
+            <input id="fee" type="number" min="0" max="0.5" step="0.01" value="0.1" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label class="lbl" for="lev">Levier max</label>
+            <input id="lev" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
+          </div>
+          <div class="field action">
+            <label class="lbl" aria-hidden="true">&nbsp;</label>
+            <button class="btn primary" id="btnAnalyze" type="submit">Analyser</button>
+          </div>
+        </form>
+        <div class="chips" id="chips" aria-label="Paires populaires"></div>
+        <div class="meta">
+          <span>Source <b id="sourceHost">—</b></span>
+          <span>Maj <b id="lastUpdate">—</b></span>
+          <span>Latence <b id="latency">—</b></span>
+          <span class="auto"><label><input type="checkbox" id="autoRefresh" checked> Auto 60 s</label></span>
         </div>
-      </div>
-      <div class="field">
-        <label class="lbl" for="capital">Capital (USDT)</label>
-        <input id="capital" type="number" min="10" step="10" value="1000" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label class="lbl" for="risk">Risque / trade %</label>
-        <input id="risk" type="number" min="0.1" max="10" step="0.1" value="1" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label class="lbl" for="fee">Frais / ordre %</label>
-        <input id="fee" type="number" min="0" max="0.5" step="0.01" value="0.1" inputmode="decimal">
-      </div>
-      <div class="field">
-        <label class="lbl" for="lev">Levier max</label>
-        <input id="lev" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
-      </div>
-      <div class="field action">
-        <label class="lbl" aria-hidden="true">&nbsp;</label>
-        <button class="btn primary" id="btnAnalyze" type="submit">Analyser</button>
-      </div>
-    </form>
-    <div class="chips" id="chips" aria-label="Paires populaires"></div>
-    <div class="meta">
-      <span>Source <b id="sourceHost">—</b></span>
-      <span>Mise à jour <b id="lastUpdate">—</b></span>
-      <span>Latence <b id="latency">—</b></span>
-      <span class="auto"><label><input type="checkbox" id="autoRefresh" checked> Rafraîchir 60 s</label></span>
-    </div>
-    <div id="symbolHint" class="meta" style="border:0;padding:0;margin-top:8px;display:none"></div>
-  </section>
+      </section>
 
-  <section class="kpis" id="kpis" aria-label="Indicateurs clés">
-    <div class="card kpi" id="kpiPrice"><span class="lbl">Dernier prix</span><b class="v" id="kPrice">—</b><span class="d" id="kPriceSub">USDT</span></div>
-    <div class="card kpi" id="kpiChange"><span class="lbl">Variation 24 h</span><b class="v" id="kChange">—</b><span class="d" id="kChangeSub">—</span></div>
-    <div class="card kpi"><span class="lbl">Volume 24 h</span><b class="v" id="kVol">—</b><span class="d" id="kVolSub">—</span></div>
-    <div class="card kpi"><span class="lbl">Volatilité ATR</span><b class="v" id="kAtr">—</b><span class="d" id="kAtrSub">—</span></div>
-    <div class="card kpi"><span class="lbl">Spread</span><b class="v" id="kSpread">—</b><span class="d" id="kSpreadSub">—</span></div>
-    <div class="card kpi"><span class="lbl">Tendance ADX</span><b class="v" id="kAdx">—</b><span class="d" id="kAdxSub">—</span></div>
-  </section>
+      <section class="card" aria-label="Marché">
+        <div class="card-head" style="margin-bottom:6px">
+          <div><h2>Marché</h2><p class="sub" id="mktSub">—</p></div>
+        </div>
+        <div class="mkt">
+          <div class="row"><span class="k">Dernier prix</span><b class="v" id="kPrice">—</b></div>
+          <div class="row" id="rowChange"><span class="k">Variation 24 h</span><b class="v" id="kChange">—</b></div>
+          <div class="row"><span class="k">Volume 24 h</span><b class="v" id="kVol">—</b></div>
+          <div class="row"><span class="k">Volatilité ATR</span><b class="v" id="kAtr">—</b></div>
+          <div class="row"><span class="k">Spread</span><b class="v" id="kSpread">—</b></div>
+          <div class="row"><span class="k">Tendance ADX</span><b class="v" id="kAdx">—</b></div>
+        </div>
+        <div class="mkt-sub" id="mktSub2">—</div>
+      </section>
+
+    </aside>
+
+    <main class="main">
 
   <section class="card chart-card" aria-label="Graphique">
     <div class="card-head">
@@ -340,7 +408,7 @@ footer b{color:var(--muted)}
   <div class="cols">
     <section class="card" aria-label="Diagnostic">
       <div class="card-head">
-        <div><h2>Diagnostic</h2><p class="sub">Lecture du régime de marché</p></div>
+        <div><h2>Diagnostic</h2><p class="sub">Régime de marché et lecture détaillée</p></div>
         <span class="badge" id="regimeBadge">—</span>
       </div>
       <p class="regime-desc" id="regimeDesc">Lancez une analyse pour obtenir une lecture du marché.</p>
@@ -366,6 +434,7 @@ footer b{color:var(--muted)}
       <div class="plan-head"><span class="badge accent" id="planBadge">—</span><h3 id="planTitle">—</h3></div>
       <ul class="why" id="whyList"><li class="empty">En attente d'analyse.</li></ul>
       <dl class="metrics" id="metrics"></dl>
+      <div class="exit-actions" id="planExit"></div>
       <div class="warns" id="warns"></div>
       <div class="checks" id="checks"></div>
     </section>
@@ -384,6 +453,7 @@ footer b{color:var(--muted)}
       <button class="on" data-tab="summary" role="tab">Résumé</button>
       <button data-tab="json" role="tab">JSON bot</button>
       <button data-tab="api" role="tab">Paramètres Binance</button>
+      <button data-tab="exit" role="tab">SL / TP</button>
       <button data-tab="curl" role="tab">cURL / API</button>
       <button data-tab="checklist" role="tab">Checklist sécurité</button>
     </div>
@@ -400,6 +470,14 @@ footer b{color:var(--muted)}
         <div class="pre-head"><span>Paramètres d'ordre Binance</span><button class="copy" data-copy="api" type="button">Copier</button></div>
         <pre id="outApi">—</pre>
       </div>
+      <div class="tab-panel" data-panel="exit">
+        <div class="pre-head"><span>Niveaux copiables</span><button class="copy" data-copy="exit" type="button">Copier le résumé</button></div>
+        <div class="exit-grid" id="exitGrid"></div>
+        <div class="pre-head" style="margin-top:14px"><span>Texte SL / TP</span><button class="copy" data-copy="exit" type="button">Copier</button></div>
+        <pre id="outExit">—</pre>
+        <div class="pre-head" style="margin-top:14px"><span>Ordre de sortie (JSON Binance)</span><button class="copy" data-copy="exitJson" type="button">Copier</button></div>
+        <pre id="outExitJson">—</pre>
+      </div>
       <div class="tab-panel" data-panel="curl">
         <div class="pre-head"><span>Exemples cURL (données publiques + ordre signé)</span><button class="copy" data-copy="curl" type="button">Copier</button></div>
         <pre id="outCurl">—</pre>
@@ -410,6 +488,8 @@ footer b{color:var(--muted)}
       </div>
     </div>
   </section>
+    </main>
+  </div>
 
   <footer>
     <div class="disc">
@@ -890,6 +970,38 @@ function buildTrend(a, capital, riskPct, maxLev) {
   };
 }
 
+function buildExit(a, rec) {
+  const tick = v => Number(roundStep(v, a.tickStr, 'round'));
+  if (rec.grid) {
+    const g = rec.grid;
+    return {
+      kind: 'grid', side: 'SELL', entry: tick(a.price), qty: g.qtyPerGrid,
+      sl: tick(g.stop), tp: tick(g.upper),
+      slPct: (g.stop / a.price - 1) * 100, tpPct: (g.upper / a.price - 1) * 100,
+      note: 'Grille : le stop coupe la plage, la borne haute sert de sortie naturelle.'
+    };
+  }
+  if (rec.dca) {
+    const d = rec.dca;
+    return {
+      kind: 'dca', side: 'SELL', entry: tick(a.price), qty: d.baseQty,
+      sl: null, tp: tick(d.tpFromCurrent), tpPct: d.tpPct,
+      invalidation: tick(d.invalidation),
+      note: 'DCA : take-profit sur le prix de revient. Sous ' + dec(d.invalidation, priceDec(d.invalidation)) + ', on arrete les renforts.'
+    };
+  }
+  if (rec.trend) {
+    const t = rec.trend;
+    return {
+      kind: 'trend', side: t.dir > 0 ? 'SELL' : 'BUY', entry: tick(t.entry), qty: t.qty,
+      sl: tick(t.sl), tp1: tick(t.tp1), tp2: tick(t.tp2),
+      slPct: (t.sl / t.entry - 1) * 100, tp1Pct: (t.tp1 / t.entry - 1) * 100, tp2Pct: (t.tp2 / t.entry - 1) * 100,
+      note: 'Tendance : stop a 2 ATR, deux objectifs. Placez le stop avant l entree.'
+    };
+  }
+  return { kind: 'none', note: 'Aucun ordre tant que les conditions ne sont pas reunies.' };
+}
+
 function buildRecommendation(a) {
   const capital = Math.max(10, num($('#capital').value, 1000));
   const riskPct = clamp(num($('#risk').value, 1), 0.1, 10);
@@ -993,6 +1105,7 @@ function buildRecommendation(a) {
     : key === 'trend' ? 'DCA sur repli vers l\'EMA 20 si la tendance s\'essouffle.'
     : bear ? 'DCA défensif sur 25 % du capital dès que l\'ADX repasse sous 25.' : 'Grid neutre ou DCA dès que les conditions s\'améliorent.';
 
+  rec.exit = buildExit(a, rec);
   return rec;
 }
 
@@ -1007,6 +1120,7 @@ function buildOutputs(a, rec) {
   const t = new Date();
   const head = '='.repeat(62);
   const L = [];
+  const ex = rec.exit || { kind: 'none' };
   L.push(head);
   L.push('  TRADER BOTVIEW — RAPPORT DE CONFIGURATION');
   L.push('  Généré le ' + t.toLocaleDateString('fr-FR') + ' à ' + t.toLocaleTimeString('fr-FR', { hour12: false }));
@@ -1083,6 +1197,20 @@ function buildOutputs(a, rec) {
     L.push(kv('Condition 2', 'ou spread < 0,06 % avec ADX < 20 (grille)'));
   }
 
+  if (ex.kind !== 'none') {
+    L.push('');
+    L.push('ORDRES DE SORTIE');
+    L.push(kv('Entrée', dec(ex.entry, priceDec(ex.entry)) + ' ' + a.quote));
+    if (ex.sl != null) L.push(kv('Stop loss', dec(ex.sl, priceDec(ex.sl)) + ' (' + signed(ex.slPct, 2) + ' %)'));
+    if (ex.tp1 != null) {
+      L.push(kv('Take profit 1', dec(ex.tp1, priceDec(ex.tp1)) + ' (' + signed(ex.tp1Pct, 2) + ' %)'));
+      L.push(kv('Take profit 2', dec(ex.tp2, priceDec(ex.tp2)) + ' (' + signed(ex.tp2Pct, 2) + ' %)'));
+    } else if (ex.tp != null) {
+      L.push(kv('Take profit', dec(ex.tp, priceDec(ex.tp)) + ' (' + signed(ex.tpPct, 2) + ' %)'));
+    }
+    if (ex.invalidation != null) L.push(kv('Invalidation', dec(ex.invalidation, priceDec(ex.invalidation)) + ' ' + a.quote));
+    L.push(kv('Quantité', String(ex.qty) + ' ' + a.base));
+  }
   L.push('');
   L.push('AVERTISSEMENTS');
   if (!rec.warns.length) L.push('  Aucun. Les conditions sont propres.');
@@ -1233,6 +1361,52 @@ function buildOutputs(a, rec) {
   C.push('# Ne jamais publier une cle API. Aucune permission Retrait. Whitelist IP obligatoire.');
   const curlTxt = C.join('\n');
 
+  const E = [];
+  if (ex.kind === 'none') {
+    E.push('Aucun ordre de sortie : aucune position recommandee.');
+  } else {
+    E.push('SORTIE - ' + a.symbol);
+    E.push('  Entree ....... ' + dec(ex.entry, priceDec(ex.entry)));
+    if (ex.sl != null) E.push('  Stop loss .... ' + dec(ex.sl, priceDec(ex.sl)) + '  (' + signed(ex.slPct, 2) + ' %)');
+    if (ex.tp1 != null) {
+      E.push('  TP 1 ......... ' + dec(ex.tp1, priceDec(ex.tp1)) + '  (' + signed(ex.tp1Pct, 2) + ' %)');
+      E.push('  TP 2 ......... ' + dec(ex.tp2, priceDec(ex.tp2)) + '  (' + signed(ex.tp2Pct, 2) + ' %)');
+    } else if (ex.tp != null) {
+      E.push('  Take profit .. ' + dec(ex.tp, priceDec(ex.tp)) + '  (' + signed(ex.tpPct, 2) + ' %)');
+    }
+    if (ex.invalidation != null) E.push('  Invalidation . ' + dec(ex.invalidation, priceDec(ex.invalidation)));
+    E.push('  Quantite ..... ' + ex.qty + ' ' + a.base);
+    E.push('  Sens ......... ' + ex.side);
+    E.push('');
+    E.push('  ' + ex.note);
+  }
+  const exitTxt = E.join('\n');
+
+  const exitJson = ex.kind === 'none'
+    ? JSON.stringify({ action: 'none', note: 'Aucun ordre recommande.' }, null, 2)
+    : JSON.stringify((rec.maxLev > 1 && ex.kind === 'trend') ? {
+        endpoint: 'POST https://fapi.binance.com/fapi/v1/order',
+        stop: { symbol: a.symbol, side: ex.side, type: 'STOP_MARKET', stopPrice: String(Number(roundStep(ex.sl, a.tickStr, 'round'))), closePosition: true, workingType: 'MARK_PRICE' },
+        takeProfit: { symbol: a.symbol, side: ex.side, type: 'TAKE_PROFIT_MARKET', stopPrice: String(Number(roundStep(ex.tp1, a.tickStr, 'round'))), closePosition: true, workingType: 'MARK_PRICE' }
+      } : ex.kind === 'dca' ? {
+        endpoint: 'POST https://api.binance.com/api/v3/order',
+        symbol: a.symbol, side: ex.side, type: 'TAKE_PROFIT_LIMIT',
+        quantity: String(ex.qty),
+        stopPrice: String(Number(roundStep(ex.tp, a.tickStr, 'round'))),
+        price: String(Number(roundStep(ex.tp * 0.999, a.tickStr, 'round'))),
+        timeInForce: 'GTC',
+        note: 'Vente declenchee quand le prix atteint le take-profit. Pas de stop : le DCA se pilote par paliers.'
+      } : {
+        endpoint: 'POST https://api.binance.com/api/v3/order',
+        symbol: a.symbol, side: ex.side, type: 'OCO',
+        quantity: String(ex.qty),
+        price: String(Number(roundStep(ex.tp != null ? ex.tp : ex.tp1, a.tickStr, 'round'))),
+        stopPrice: String(Number(roundStep(ex.sl, a.tickStr, 'round'))),
+        stopLimitPrice: String(Number(roundStep(ex.sl * 0.998, a.tickStr, 'round'))),
+        stopLimitTimeInForce: 'GTC',
+        note: 'OCO : une jambe executee annule l autre. Verifiez minNotional et stepSize.'
+      }, null, 2);
+
   const K = [];
   K.push('CHECKLIST - SECURISER VOTRE BOT BINANCE');
   K.push('='.repeat(46));
@@ -1279,7 +1453,7 @@ function buildOutputs(a, rec) {
   K.push('Un bot mal configure peut perdre 100 % du capital engage.');
   const checkTxt = K.join('\n');
 
-  return { summary: summary, json: JSON.stringify(json, null, 2), api: apiTxt, curl: curlTxt, checklist: checkTxt };
+  return { summary: summary, json: JSON.stringify(json, null, 2), api: apiTxt, exit: exitTxt, exitJson: exitJson, curl: curlTxt, checklist: checkTxt };
 }
 
 /* ============================== rendu ============================== */
@@ -1288,21 +1462,16 @@ function setStatus(kind, text) {
   d.className = 'dot ' + (kind || '');
   $('#statusText').textContent = text;
 }
-function renderKpis(a) {
+function renderMarket(a) {
   $('#kPrice').textContent = fmtPrice(a.price);
-  $('#kPriceSub').textContent = a.quote + ' · ' + a.tf;
-  const chg = $('#kChange');
-  chg.textContent = signed(a.changePct) + ' %';
-  $('#kpiChange').className = 'card kpi ' + (a.changePct >= 0 ? 'up' : 'down');
-  $('#kChangeSub').textContent = 'H ' + fmtPrice(a.high24) + ' / B ' + fmtPrice(a.low24);
+  $('#kChange').textContent = signed(a.changePct) + ' %';
+  $('#rowChange').className = 'row ' + (a.changePct >= 0 ? 'up' : 'down');
   $('#kVol').textContent = compact(a.quoteVol);
-  $('#kVolSub').textContent = 'USDT · ' + a.liqLabel;
   $('#kAtr').textContent = dec(a.atrPct, 2) + ' %';
-  $('#kAtrSub').textContent = a.volLabel + ' · ATR ' + fmtPrice(a.atr);
   $('#kSpread').textContent = dec(a.spreadPct, 3) + ' %';
-  $('#kSpreadSub').textContent = a.bid ? 'bid ' + fmtPrice(a.bid) + ' / ask ' + fmtPrice(a.ask) : 'carnet indisponible';
   $('#kAdx').textContent = a.adx != null ? dec(a.adx, 1) : '—';
-  $('#kAdxSub').textContent = adxWord(a.adx);
+  $('#mktSub').textContent = a.symbol + ' · ' + a.tf + ' · ' + a.liqLabel;
+  $('#mktSub2').textContent = 'H ' + fmtPrice(a.high24) + ' · B ' + fmtPrice(a.low24) + (a.bid ? ' · bid ' + fmtPrice(a.bid) : '');
   $('#sourceHost').textContent = (state.host || '').replace('https://', '');
   $('#lastUpdate').textContent = clockStr(Date.now());
 }
@@ -1318,6 +1487,8 @@ function renderDiagnostic(a) {
   const badge = $('#regimeBadge');
   badge.textContent = a.regimeLabel;
   badge.className = 'badge ' + (a.regime === 'bull' ? 'up' : a.regime === 'bear' ? 'down' : a.regime === 'transition' ? 'warn' : '');
+  const mini = $('#regimeBadgeMini');
+  if (mini) { mini.textContent = a.regimeLabel; mini.className = badge.className; }
   $('#regimeDesc').textContent = a.regimeDesc;
   const bf = $('#biasFill'), w = Math.abs(a.bias) / 2;
   bf.style.width = w + '%';
@@ -1386,17 +1557,49 @@ function renderPlan(rec) {
   $('#warns').innerHTML = rec.warns.map(w => '<div class="warn"><span>⚠</span><div>' + w + '</div></div>').join('');
   $('#checks').innerHTML = rec.checks.map(c => '<div class="check ' + (c.ok ? 'ok' : 'no') + '"><i>' + (c.ok ? '✓' : '✕') + '</i><span>' + c.label + ' <span style="color:var(--dim)">· ' + c.detail + '</span></span></div>').join('');
 }
+function renderExit(rec) {
+  const ex = rec.exit || { kind: 'none' };
+  const items = [];
+  if (ex.kind !== 'none') {
+    items.push({ lab: 'Entrée', raw: String(ex.entry), disp: fmtPrice(ex.entry) });
+    if (ex.sl != null) items.push({ lab: 'Stop loss', raw: String(ex.sl), disp: fmtPrice(ex.sl) + ' · ' + signed(ex.slPct, 2) + ' %' });
+    if (ex.tp1 != null) {
+      items.push({ lab: 'TP 1', raw: String(ex.tp1), disp: fmtPrice(ex.tp1) + ' · ' + signed(ex.tp1Pct, 2) + ' %' });
+      items.push({ lab: 'TP 2', raw: String(ex.tp2), disp: fmtPrice(ex.tp2) + ' · ' + signed(ex.tp2Pct, 2) + ' %' });
+    } else if (ex.tp != null) {
+      items.push({ lab: 'Take profit', raw: String(ex.tp), disp: fmtPrice(ex.tp) + ' · ' + signed(ex.tpPct, 2) + ' %' });
+    }
+    if (ex.invalidation != null) items.push({ lab: 'Invalidation', raw: String(ex.invalidation), disp: fmtPrice(ex.invalidation) });
+    items.push({ lab: 'Quantité', raw: String(ex.qty), disp: String(ex.qty) });
+  }
+  $('#exitGrid').innerHTML = items.length
+    ? items.map(i => '<div class="val-chip"><span class="lab">' + i.lab + '</span><span class="num">' + i.disp + '</span><button class="copy copy-mini" data-copyval="' + i.raw + '" type="button">Copier</button></div>').join('')
+    : '<p class="empty">Aucun niveau de sortie pour cette stratégie.</p>';
+
+  const pe = [];
+  if (ex.entry != null) pe.push('<button class="copy" data-copyval="' + ex.entry + '" type="button">Copier entrée</button>');
+  if (ex.sl != null) pe.push('<button class="copy" data-copyval="' + ex.sl + '" type="button">Copier SL</button>');
+  if (ex.tp1 != null) {
+    pe.push('<button class="copy" data-copyval="' + ex.tp1 + '" type="button">Copier TP1</button>');
+    pe.push('<button class="copy" data-copyval="' + ex.tp2 + '" type="button">Copier TP2</button>');
+  } else if (ex.tp != null) pe.push('<button class="copy" data-copyval="' + ex.tp + '" type="button">Copier TP</button>');
+  if (ex.invalidation != null) pe.push('<button class="copy" data-copyval="' + ex.invalidation + '" type="button">Copier invalidation</button>');
+  if (ex.qty != null) pe.push('<button class="copy" data-copyval="' + ex.qty + '" type="button">Copier quantité</button>');
+  $('#planExit').innerHTML = pe.join('');
+}
 function renderOutputs(out) {
   $('#outSummary').textContent = out.summary;
   $('#outJson').textContent = out.json;
   $('#outApi').textContent = out.api;
   $('#outCurl').textContent = out.curl;
+  $('#outExit').textContent = out.exit;
+  $('#outExitJson').textContent = out.exitJson;
   $('#outChecklist').textContent = out.checklist;
 }
 function renderAll() {
   const a = state.analysis, rec = state.rec, out = state.outputs;
   if (!a || !rec) return;
-  renderKpis(a); renderChartMeta(a); renderDiagnostic(a); renderPlan(rec); renderOutputs(out);
+  renderMarket(a); renderChartMeta(a); renderDiagnostic(a); renderPlan(rec); renderExit(rec); renderOutputs(out);
   drawChart();
 }
 function recompute() {
@@ -1660,7 +1863,7 @@ function bind() {
   $('#btnCopyAll').addEventListener('click', async e => {
     if (!state.outputs) { toast('Lancez une analyse d\'abord'); return; }
     const o = state.outputs;
-    const all = [o.summary, '', '----- JSON -----', o.json, '', '----- PARAMÈTRES BINANCE -----', o.api, '', '----- CURL -----', o.curl, '', '----- CHECKLIST -----', o.checklist].join('\n');
+    const all = [o.summary, '', '----- JSON -----', o.json, '', '----- PARAMÈTRES BINANCE -----', o.api, '', '----- SL / TP -----', o.exit, '', o.exitJson, '', '----- CURL -----', o.curl, '', '----- CHECKLIST -----', o.checklist].join('\n');
     flash(e.currentTarget, await copyText(all));
   });
   $('#btnDlJson').addEventListener('click', () => {
@@ -1670,9 +1873,15 @@ function bind() {
   $('#btnDlTxt').addEventListener('click', () => {
     if (!state.outputs) { toast('Lancez une analyse d\'abord'); return; }
     const o = state.outputs;
-    download('botview-' + state.symbol + '-' + state.tf + '.txt', [o.summary, '', o.json, '', o.api, '', o.curl, '', o.checklist].join('\n'));
+    download('botview-' + state.symbol + '-' + state.tf + '.txt', [o.summary, '', o.json, '', o.api, '', o.exit, '', o.exitJson, '', o.curl, '', o.checklist].join('\n'));
   });
   $('#autoRefresh').addEventListener('change', scheduleAuto);
+  document.addEventListener('click', async ev => {
+    const b = ev.target.closest ? ev.target.closest('[data-copyval]') : null;
+    if (!b) return;
+    ev.preventDefault();
+    flash(b, await copyText(b.dataset.copyval));
+  });
 
   const cv = $('#chart');
   cv.addEventListener('mousemove', e => {
