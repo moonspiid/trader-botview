@@ -323,9 +323,9 @@ body{overflow:hidden}
 .chart-panel .chart-wrap{flex:1 1 auto;height:auto;min-height:0;border:0;border-radius:0;background:transparent}
 .chart-panel #chart{width:100%;height:100%;display:block}
 .chart-panel .legend{margin:0;padding:5px 10px 7px;border-top:1px solid rgba(26,36,52,.6);font-size:9px;gap:11px}
-.plan-panel{flex:0 1 auto;max-height:55%}
+.plan-panel{flex:0 1 auto;max-height:58%}
 .plan-panel .pb{display:grid;gap:7px;align-content:start}
-.plan-panel .regime-desc{font-size:10.5px;line-height:1.45;margin:0;color:var(--muted)}
+.plan-panel .regime-desc{font-size:10.5px;line-height:1.45;margin:0;color:var(--muted);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .plan-panel .why{margin:0;padding-left:15px;font-size:10.5px;line-height:1.45;color:var(--muted);display:grid;gap:2px}
 .plan-panel .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px 7px;margin:0}
 .plan-panel .metrics>div{background:#080d14;border:1px solid var(--line);border-radius:7px;padding:4px 6px;min-width:0}
@@ -342,6 +342,12 @@ body{overflow:hidden}
 .more .tbl{font-size:10px}
 .more .checks{display:grid;gap:3px;margin-top:6px}
 .more .check{font-size:10px}
+.plan-panel .cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(192px,1fr));gap:5px}
+.plan-panel .cell{background:#080d14;border:1px solid var(--line);border-radius:8px;padding:4px 6px;min-width:0;display:flex;flex-direction:column;gap:1px}
+.plan-panel .cell .k{font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-panel .cell .v{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0}
+.plan-panel .cell .v b{font-family:var(--mono);font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-panel .cell .copy-mini{flex:0 0 auto;padding:2px 6px;font-size:8.5px;border-radius:5px;line-height:1.3}
 .mkt .row{font-size:11px;padding:5px 0}
 .mkt-sub{font-size:9px;margin-top:6px}
 .suggest{display:grid;gap:5px}
@@ -376,6 +382,12 @@ body{overflow:hidden}
 .col-right .val-chip{padding:5px 8px}
 .col-right .val-chip .num{font-size:11px}
 .disc-line{font-size:8.5px;color:#3f4d61;text-align:center;padding:5px 2px 0;line-height:1.4;flex:0 0 auto}
+@media (max-width:1120px){
+  .plan-panel .cfg{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .plan-panel .cell{padding:6px 8px}
+  .plan-panel .cell .v b{font-size:12px}
+  .plan-panel .cell .copy-mini{padding:5px 9px;font-size:10px}
+}
 @media (max-height:820px){
   .panel>.ph{min-height:30px;padding:5px 9px}
   .panel>.pb{padding:7px 9px}
@@ -575,8 +587,7 @@ body{overflow:hidden}
         <div class="pb">
           <p class="regime-desc" id="regimeDesc">Lancez une analyse pour obtenir une lecture du marché.</p>
           <ul class="why" id="whyList"></ul>
-          <dl class="metrics" id="metrics"></dl>
-          <div class="exit-actions" id="planExit"></div>
+          <div class="cfg" id="cfgGrid"></div>
           <div class="warns" id="warns"></div>
           <details class="more">
             <summary>Indicateurs, contrôles et confiance</summary>
@@ -1180,7 +1191,10 @@ function buildRecommendation(a) {
   const warns = [];
   const rec = {
     key, name: NAMES[key][0], tagline: NAMES[key][1], why, warns,
-    capital, riskPct, fee, maxLev, market: maxLev > 1 ? 'SPOT / FUTURES' : 'SPOT'
+    capital, riskPct, fee, maxLev, market: maxLev > 1 ? 'SPOT / FUTURES' : 'SPOT',
+    lev: maxLev,
+    marginMode: maxLev > 1 ? 'ISOLATED' : 'SPOT',
+    marginNote: maxLev > 1 ? 'Futures USDT-M, marge isolée' : 'Spot, sans levier'
   };
 
   if (key === 'grid') {
@@ -1349,6 +1363,9 @@ function buildOutputs(a, rec) {
     L.push(kv('Condition 2', 'ou spread < 0,06 % avec ADX < 20 (grille)'));
   }
 
+  L.push(kv('Mode de marge', rec.marginMode + ' (' + rec.marginNote + ')'));
+  if (!rec.trend) L.push(kv('Levier', dec(rec.lev, 2) + 'x'));
+
   if (ex.kind !== 'none') {
     L.push('');
     L.push('ORDRES DE SORTIE');
@@ -1381,7 +1398,7 @@ function buildOutputs(a, rec) {
     generator: 'Trader BotView',
     generatedAt: t.toISOString(),
     disclaimer: 'Outil éducatif, pas un conseil financier. Aucune garantie de performance.',
-    market: { exchange: 'Binance', type: 'SPOT', symbol: a.symbol, base: a.base, quote: a.quote, timeframe: a.tf },
+    market: { exchange: 'Binance', type: rec.marginMode === 'ISOLATED' ? 'FUTURES' : 'SPOT', symbol: a.symbol, base: a.base, quote: a.quote, timeframe: a.tf },
     snapshot: {
       price: a.price, change24hPct: Number(a.changePct.toFixed(4)), high24h: a.high24, low24h: a.low24,
       quoteVolume24h: Math.round(a.quoteVol), spreadPct: Number(a.spreadPct.toFixed(4)),
@@ -1393,7 +1410,7 @@ function buildOutputs(a, rec) {
       direction: rec.trend ? (rec.trend.dir > 0 ? 'long' : 'short') : (rec.key === 'grid' ? 'neutral' : rec.key === 'wait' ? 'none' : 'long'),
       reason: rec.why
     },
-    risk: { capital: rec.capital, riskPerTradePct: rec.riskPct, feePerSidePct: rec.fee, maxLeverage: rec.maxLev }
+    risk: { capital: rec.capital, riskPerTradePct: rec.riskPct, feePerSidePct: rec.fee, maxLeverage: rec.maxLev, marginMode: rec.marginMode }
   };
 
   if (rec.grid) {
@@ -1458,6 +1475,8 @@ function buildOutputs(a, rec) {
   }
   json.warnings = rec.warns;
   json.planB = rec.planB;
+
+  if (json.binance) { json.binance.marginMode = rec.marginMode; json.binance.leverage = dec(rec.lev, 2) + 'x'; }
 
   const order = json.binance || {};
   const A = [];
@@ -1642,6 +1661,7 @@ function renderDiagnostic(a) {
   const mini = $('#regimeBadgeMini');
   if (mini) { mini.textContent = a.regimeLabel; mini.className = badge.className; }
   $('#regimeDesc').textContent = a.regimeDesc;
+  $('#regimeDesc').title = a.regimeDesc;
   const bf = $('#biasFill'), w = Math.abs(a.bias) / 2;
   bf.style.width = w + '%';
   bf.style.left = a.bias >= 0 ? '50%' : (50 - w) + '%';
@@ -1668,46 +1688,62 @@ function renderPlan(rec) {
   $('#planBadge').textContent = rec.key.toUpperCase();
   $('#planTitle').textContent = rec.name;
   $('#planSub').textContent = rec.tagline;
-  $('#whyList').innerHTML = rec.why.map(w => '<li>' + w + '</li>').join('');
-  const M = [];
-  const m = (k, v) => M.push('<div><dt>' + k + '</dt><dd>' + v + '</dd></div>');
-  if (rec.grid) {
-    const g = rec.grid;
-    m('Plage', fmtPrice(g.lower) + ' – ' + fmtPrice(g.upper));
-    m('Grilles', g.count + ' · ' + (g.mode === 'geometric' ? 'géom.' : 'arithm.'));
-    m('Pas de grille', dec(g.stepPct, 2) + ' %');
-    m('Profit / grille', dec(g.profitPerGrid, 2) + ' %');
-    m('Capital / grille', dec(g.investPerGrid, 2) + ' USDT');
-    m('Quantité / grille', String(g.qtyPerGrid));
-    m('Profit plage (théor.)', dec(g.estProfitFull, 2) + ' USDT');
-    m('Stop sécurité', fmtPrice(g.stop));
-  } else if (rec.dca) {
-    const d = rec.dca;
-    m('Budget alloué', dec(d.budget, 2) + ' USDT');
-    m('Ordre de base', dec(d.base, 2) + ' USDT');
-    m('Renforts', d.safetyCount + ' · -' + dec(d.devFirst, 1) + ' % puis ×' + d.stepScale);
-    m('Réserve', dec(d.reserve, 2) + ' USDT');
-    m('PRU si rempli', fmtPrice(d.avgEntry));
-    m('Take profit', '+' + dec(d.tpPct, 2) + ' %');
-    m('Prix TP', fmtPrice(d.tpFromCurrent));
-    m('Invalidation', fmtPrice(d.invalidation));
-  } else if (rec.trend) {
-    const tr = rec.trend;
-    m('Sens', tr.dir > 0 ? 'LONG' : 'SHORT');
-    m('Entrée', fmtPrice(tr.entry));
-    m('Stop loss', fmtPrice(tr.sl) + ' (' + dec(-tr.slPct, 2) + ' %)');
-    m('Objectif 1', fmtPrice(tr.tp1));
-    m('Objectif 2', fmtPrice(tr.tp2));
-    m('Taille', tr.qty + ' ' + state.analysis.base);
-    m('Levier', dec(tr.lev, 2) + 'x');
-    m('Risque', dec(tr.actualRisk, 2) + ' USDT');
-  } else {
-    m('Action', 'Aucune entrée');
-    m('Condition', 'ADX > 22 ou spread < 0,06 %');
-  }
-  $('#metrics').innerHTML = M.join('');
+  $('#whyList').innerHTML = rec.why.slice(0, 3).map(w => '<li>' + w + '</li>').join('');
+  renderConfig(rec);
   $('#warns').innerHTML = rec.warns.map(w => '<div class="warn"><span>⚠</span><div>' + w + '</div></div>').join('');
   $('#checks').innerHTML = rec.checks.map(c => '<div class="check ' + (c.ok ? 'ok' : 'no') + '"><i>' + (c.ok ? '✓' : '✕') + '</i><span>' + c.label + ' <span style="color:var(--dim)">· ' + c.detail + '</span></span></div>').join('');
+}
+function cfgCell(label, raw, disp) {
+  const v = disp != null ? disp : raw;
+  const copy = raw != null ? '<button class="copy copy-mini" type="button" data-copyval="' + String(raw).replace(/"/g, '&quot;') + '">Copier</button>' : '';
+  return '<div class="cell"><span class="k">' + label + '</span><span class="v"><b>' + v + '</b>' + copy + '</span></div>';
+}
+function renderConfig(rec) {
+  const cells = [];
+  const add = (k, raw, disp) => cells.push(cfgCell(k, raw, disp));
+  const margin = () => add('Mode de marge', rec.marginMode, rec.marginMode === 'SPOT' ? 'Spot' : 'Isolated');
+  if (rec.grid) {
+    const g = rec.grid;
+    add('Borne basse', g.lower, fmtPrice(g.lower));
+    add('Borne haute', g.upper, fmtPrice(g.upper));
+    add('Nombre de grilles', g.count, g.count);
+    add('Pas de grille', dec(g.stepPct, 2) + '%', dec(g.stepPct, 2) + ' %');
+    add('Montant / grille', dec(g.investPerGrid, 2), dec(g.investPerGrid, 2) + ' USDT');
+    add('Montant total', dec(rec.capital, 2), dec(rec.capital, 2) + ' USDT');
+    add('Quantité / grille', g.qtyPerGrid, g.qtyPerGrid);
+    add('Mode de grille', g.mode === 'geometric' ? 'Geometric' : 'Arithmetic', g.mode === 'geometric' ? 'Géométrique' : 'Arithmétique');
+    margin();
+    add('TP (borne haute)', g.upper, fmtPrice(g.upper));
+    add('SL (stop sécurité)', g.stop, fmtPrice(g.stop));
+  } else if (rec.dca) {
+    const d = rec.dca;
+    add('Budget alloué', dec(d.budget, 2), dec(d.budget, 2) + ' USDT');
+    add('Ordre de base', dec(d.base, 2), dec(d.base, 2) + ' USDT');
+    add('Renforts', d.safetyCount, d.safetyCount + ' · -' + dec(d.devFirst, 1) + ' % ×' + d.stepScale);
+    add('Réserve', dec(d.reserve, 2), dec(d.reserve, 2) + ' USDT');
+    add('PRU si rempli', d.avgEntry, fmtPrice(d.avgEntry));
+    add('TP %', dec(d.tpPct, 2) + '%', '+' + dec(d.tpPct, 2) + ' %');
+    add('Prix TP', d.tpFromCurrent, fmtPrice(d.tpFromCurrent));
+    add('Invalidation', d.invalidation, fmtPrice(d.invalidation));
+    margin();
+    if (rec.exit && rec.exit.qty != null) add('Quantité', rec.exit.qty, rec.exit.qty);
+  } else if (rec.trend) {
+    const tr = rec.trend;
+    add('Sens', tr.dir > 0 ? 'LONG' : 'SHORT', tr.dir > 0 ? 'LONG' : 'SHORT');
+    add('Entrée', tr.entry, fmtPrice(tr.entry));
+    add('Stop loss', tr.sl, fmtPrice(tr.sl) + ' (' + dec(-tr.slPct, 2) + ' %)');
+    add('TP 1', tr.tp1, fmtPrice(tr.tp1));
+    add('TP 2', tr.tp2, fmtPrice(tr.tp2));
+    add('Taille', tr.qty, tr.qty + ' ' + (state.analysis ? state.analysis.base : ''));
+    add('Levier', dec(tr.lev, 2) + 'x', dec(tr.lev, 2) + 'x');
+    add('Risque', dec(tr.actualRisk, 2), dec(tr.actualRisk, 2) + ' USDT');
+    margin();
+  } else {
+    add('Action', 'Attendre', 'Aucune entrée');
+    add('Condition 1', 'ADX > 22', 'ADX > 22 avec EMA 20 > EMA 50');
+    add('Condition 2', 'Spread < 0.06%', 'ou spread < 0,06 % avec ADX < 20');
+  }
+  $('#cfgGrid').innerHTML = cells.join('');
 }
 function renderExit(rec) {
   const ex = rec.exit || { kind: 'none' };
@@ -1728,6 +1764,8 @@ function renderExit(rec) {
     ? items.map(i => '<div class="val-chip"><span class="lab">' + i.lab + '</span><span class="num">' + i.disp + '</span><button class="copy copy-mini" data-copyval="' + i.raw + '" type="button">Copier</button></div>').join('')
     : '<p class="empty">Aucun niveau de sortie pour cette stratégie.</p>';
 
+  const peBox = $('#planExit');
+  if (!peBox) return;
   const pe = [];
   if (ex.entry != null) pe.push('<button class="copy" data-copyval="' + ex.entry + '" type="button">Copier entrée</button>');
   if (ex.sl != null) pe.push('<button class="copy" data-copyval="' + ex.sl + '" type="button">Copier SL</button>');
@@ -1737,7 +1775,7 @@ function renderExit(rec) {
   } else if (ex.tp != null) pe.push('<button class="copy" data-copyval="' + ex.tp + '" type="button">Copier TP</button>');
   if (ex.invalidation != null) pe.push('<button class="copy" data-copyval="' + ex.invalidation + '" type="button">Copier invalidation</button>');
   if (ex.qty != null) pe.push('<button class="copy" data-copyval="' + ex.qty + '" type="button">Copier quantité</button>');
-  $('#planExit').innerHTML = pe.join('');
+  peBox.innerHTML = pe.join('');
 }
 function renderOutputs(out) {
   $('#outSummary').textContent = out.summary;

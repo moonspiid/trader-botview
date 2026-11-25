@@ -53,6 +53,7 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
   - **DCA adaptatif** : budget plafonné, ordre de base, six renforts avec prix et montants, prix de revient, take-profit, invalidation.
   - **Suivi de tendance** : entrée, stop à 2 ATR, deux objectifs, taille de position, levier nécessaire, prix de liquidation estimé.
 - **Quatrième réponse possible : attendre** — quand le spread est trop large, la liquidité insuffisante ou la tendance trop violente, l'outil donne les conditions précises à surveiller au lieu de forcer un bot.
+- **Grille de paramètres copiables** — sous le graphique, chaque valeur du bot a sa case et son bouton **Copier** : borne basse, borne haute, nombre de grilles, pas de grille, montant par grille, montant total, quantité par grille, mode de grille (arithmétique/géométrique), **mode de marge** (Spot ou Isolated), TP et SL. Une valeur par appui, donc rien à sélectionner au doigt sur mobile.
 - **Niveaux SL / TP copiables** — entrée, stop, TP1, TP2 et quantité, chacun avec son bouton de copie, plus un ordre de sortie prêt à coller (OCO en spot, `STOP_MARKET` + `TAKE_PROFIT_MARKET` en futures, `TAKE_PROFIT_LIMIT` pour le DCA).
 - **Cinq blocs de sortie** : rapport texte, JSON de configuration complet (avec les niveaux de grille), paramètres d'ordre Binance, cURL et Python signés sur le testnet, checklist de sécurisation.
 - **Vérifications de faisabilité** — `tickSize`, `stepSize`, `minQty`, `minNotional`, profit par grille supérieur aux frais, liquidité 24 h, funding.
@@ -64,7 +65,7 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
 2. Choisir un mode : **Manuel** (vous choisissez la paire) ou **Auto** (le scanner propose les meilleures options pour votre capital).
 3. En manuel : paire, unité de temps, capital, puis **Analyser**. En auto : capital, puis **Scanner le marché** (le scan démarre tout seul au premier passage).
 4. Lire le **Diagnostic** et le **Plan recommandé**, puis descendre sur **Configurations prêtes à copier**.
-5. Onglet **SL / TP** : copier les niveaux un par un, ou l'ordre de sortie complet.
+5. Copier les paramètres un par un dans la grille sous le graphique (bornes, grilles, montant, marge, TP/SL), ou l'onglet **SL / TP** pour les niveaux et l'ordre de sortie complet.
 6. Tester sur [testnet.binance.vision](https://testnet.binance.vision) avant tout argent réel.
 
 ### En local
