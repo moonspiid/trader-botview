@@ -54,7 +54,7 @@ body{display:flex;align-items:center;justify-content:center}
   background:var(--panel2);border:1px solid var(--line2);font-size:14px;position:relative;
 }
 .icon-btn:active{transform:scale(.95)}
-.icon-btn .dot{position:absolute;top:6px;right:6px;width:5px;height:5px;border-radius:50%;background:var(--acc)}
+.icon-btn svg{width:15px;height:15px;flex:0 0 auto}
 .icon-btn.lang{width:auto;min-width:48px;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:10.5px;font-weight:800;letter-spacing:.05em}
 .icon-btn.lang svg{width:12px;height:12px;opacity:.7;flex:0 0 auto}
 .modebar{display:flex;align-items:center;gap:6px}
@@ -160,44 +160,8 @@ body{display:flex;align-items:center;justify-content:center}
 .donAddr small{display:block;color:var(--dim);font-size:8.5px;margin-top:3px;font-family:var(--sans)}
 .donP{font-size:10.5px;line-height:1.55;color:var(--muted);margin:0 0 10px}
 .donQr{display:block;margin:0 auto 10px;width:132px;height:132px;border-radius:8px;background:#fff;padding:5px}
-.scrim{
-  position:fixed;inset:0;background:rgba(3,5,9,.62);backdrop-filter:blur(2px);
-  opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;
-}
-.scrim.on{opacity:1;pointer-events:auto}
-.drawer{
-  position:fixed;top:0;right:0;height:100dvh;width:min(90vw,390px);z-index:60;
-  background:#080c12;border-left:1px solid var(--line2);display:flex;flex-direction:column;
-  transform:translateX(102%);transition:transform .28s cubic-bezier(.4,0,.2,1);
-  padding-top:env(safe-area-inset-top);
-}
-.drawer.open{transform:none}
-.dhead{display:flex;align-items:center;gap:6px;padding:10px 10px 8px;border-bottom:1px solid var(--line)}
-.dhead h2{font-size:12px;margin:0;flex:1;letter-spacing:.02em}
-.dhead .icon-btn{width:28px;height:28px;font-size:12px}
-.dbody{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:8px 10px;display:grid;gap:6px;align-content:start}
-.news{
-  display:block;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);
-  border-radius:9px;padding:7px 9px;
-}
-.news:active{background:#131c29}
-.news .t{font-size:11px;line-height:1.35;font-weight:600}
-.news .m{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:8.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
-.tag{border-radius:4px;padding:1px 5px;font-weight:800;font-size:8px;letter-spacing:.04em}
-.tag.list{background:#12331f;color:#6ee7a0}
-.tag.delist{background:#3a1620;color:#ff8b9d}
-.tag.maint{background:#33280c;color:#f0b90b}
-.tag.api{background:#122a3d;color:#7cc4ff}
-.tag.news2{background:#1c2430;color:#9fb3cc}
-.tag.air{background:#221a3a;color:#b79bfa}
-.dfoot{padding:8px 10px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;gap:6px}
-.dfoot a,.dfoot button{
-  flex:1;height:34px;display:grid;place-items:center;border-radius:9px;font-size:10.5px;font-weight:700;
-  text-decoration:none;background:var(--panel2);border:1px solid var(--line2);color:var(--muted);
-}
-.skel{height:52px;border-radius:9px;background:linear-gradient(90deg,#0d141f,#141d2b,#0d141f);background-size:200% 100%;animation:sh 1.2s infinite}
-@keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
-.empty{font-size:10.5px;color:var(--dim);text-align:center;padding:22px 10px;line-height:1.5}
+.icon-btn.spin svg{animation:spin .8s linear}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .sheet{position:fixed;inset:0;z-index:80;background:rgba(3,5,9,.72);display:flex;align-items:flex-end;justify-content:center}
 .sheet[hidden]{display:none}
 .sheet .box{width:100%;max-width:460px;background:#0c1119;border:1px solid var(--line2);border-radius:14px 14px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom))}
@@ -255,8 +219,8 @@ body{display:flex;align-items:center;justify-content:center}
         <span id="langCode">FR</span>
       </button>
       <button class="icon-btn" id="btnInstall" type="button" title="Installer" hidden>⤓</button>
-      <button class="icon-btn" id="btnNews" type="button" title="Actualités">
-        <span class="dot"></span>☰
+      <button class="icon-btn" id="btnRefresh" type="button" title="Actualiser" aria-label="Actualiser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 4.5v5h-5"/></svg>
       </button>
     </div>
   </header>
@@ -298,19 +262,6 @@ body{display:flex;align-items:center;justify-content:center}
   </div>
 </div>
 
-<aside class="drawer" id="drawer" aria-hidden="true">
-  <div class="dhead">
-    <h2 data-i18n="newsTitle">Actualités du marché</h2>
-    <button class="icon-btn" id="newsRefresh" type="button" title="↻">↻</button>
-    <button class="icon-btn" id="newsClose" type="button" title="✕">✕</button>
-  </div>
-  <div class="dbody" id="newsList"></div>
-  <div class="dfoot">
-    <a href="https://www.binance.com/en/support/announcement" target="_blank" rel="noopener" data-i18n="newsAll">Tout voir ↗</a>
-    <a href="https://www.binance.com/en/futures-activity/leaderboard" target="_blank" rel="noopener" data-i18n="newsFutures">Futures ↗</a>
-  </div>
-</aside>
-<div class="scrim" id="scrim"></div>
 
 <div class="sheet" id="sheet" hidden>
   <div class="box" role="dialog" aria-modal="true">
@@ -360,15 +311,12 @@ const I18N = {
     spotHint: 'API Futures bloquée : filtres spot utilisés, vérifiez la quantité minimale avant de lancer le bot',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
     gridsCap: '{n} grilles max (capital)', levBoost: 'levier porté à {n}×', feeNote: 'frais {n} $',
-    credDon: 'Don USDT', donTitle: 'Soutenir le projet',
+    refresh: 'Actualiser', credDon: 'Don USDT', donTitle: 'Soutenir le projet',
     donText: 'Une seule adresse USDT, la même sur tous les réseaux EVM : BEP20, ERC20, Polygon, Arbitrum, Base, Optimism.',
     donHint: 'Appuyer pour copier',
-    newsTitle: 'Actualités du marché', newsAll: 'Tout voir ↗', newsFutures: 'Futures ↗',
-    newsEmpty: 'Aucune actualité disponible.', newsError: 'Actualités indisponibles', retry: 'Réessayer',
     installTitle: 'Installer Trader BotView', ok: 'Compris',
     installIos: ['Appuyez sur <b>Partager</b> dans Safari.', 'Choisissez <b>Sur l\'écran d\'accueil</b>.', 'Validez avec <b>Ajouter</b>.'],
     installOther: ['Ouvrez le menu du navigateur.', 'Choisissez <b>Installer l\'application</b> ou <b>Ajouter à l\'écran d\'accueil</b>.', 'L\'app s\'ouvre en plein écran.'],
-    tagList: 'Listing', tagDelist: 'Delisting', tagMaint: 'Maintenance', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'Actu',
     emptyHint: 'Saisissez une paire puis Analyser, ou laissez l\'IA choisir.'
   },
   en: {
@@ -384,15 +332,12 @@ const I18N = {
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
     gridsCap: '{n} grids max (capital)', levBoost: 'leverage raised to {n}×', feeNote: 'fees {n} $',
-    credDon: 'USDT tip', donTitle: 'Support the project',
+    refresh: 'Refresh', credDon: 'USDT tip', donTitle: 'Support the project',
     donText: 'One USDT address, the same on every EVM network: BEP20, ERC20, Polygon, Arbitrum, Base, Optimism.',
     donHint: 'Tap to copy',
-    newsTitle: 'Market news', newsAll: 'See all ↗', newsFutures: 'Futures ↗',
-    newsEmpty: 'No news available.', newsError: 'News unavailable', retry: 'Retry',
     installTitle: 'Install Trader BotView', ok: 'Got it',
     installIos: ['Tap <b>Share</b> in Safari.', 'Choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'],
     installOther: ['Open the browser menu.', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'It opens full screen.'],
-    tagList: 'Listing', tagDelist: 'Delisting', tagMaint: 'Maintenance', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'News',
     emptyHint: 'Type a pair and analyse, or let the AI pick one.'
   },
 };
@@ -461,18 +406,6 @@ function roundStep(v, stepStr, mode = 'floor') {
   const q = mode === 'floor' ? Math.floor(x + 1e-9) : Math.round(x);
   return Number((q * st).toFixed(d));
 }
-function ago(ts) {
-  const diff = (Date.now() - ts) / 1000;
-  try {
-    const rtf = new Intl.RelativeTimeFormat(LOC[lang] || 'fr', { numeric: 'auto' });
-    if (diff < 3600) return rtf.format(-Math.max(1, Math.round(diff / 60)), 'minute');
-    if (diff < 86400) return rtf.format(-Math.round(diff / 3600), 'hour');
-    return rtf.format(-Math.round(diff / 86400), 'day');
-  } catch (e) { return ''; }
-}
-
-/* ============================== ui helpers ============================== */
-let toastTimer = null;
 function toast(msg) {
   const el = $('#toast');
   if (!el) return;
@@ -1018,71 +951,6 @@ function bumpGrids(delta) {
   recompute();
 }
 
-/* ============================== news ============================== */
-const NEWS_URL = 'https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&pageNo=1&pageSize=10';
-const TAGS = { 48: ['list', 'tagList'], 161: ['delist', 'tagDelist'], 157: ['maint', 'tagMaint'], 51: ['api', 'tagApi'], 128: ['air', 'tagAirdrop'], 49: ['news2', 'tagNews'], 93: ['news2', 'tagNews'] };
-let news = [];
-let newsState = 'idle';
-
-async function loadNews(force) {
-  if (newsState === 'loading') return;
-  if (news.length && !force) { renderNews(); return; }
-  newsState = 'loading';
-  renderNews();
-  try {
-    const r = await getJSON(NEWS_URL, 12000);
-    const out = [];
-    ((r.data && r.data.catalogs) || []).forEach(c => {
-      (c.articles || []).forEach(a => {
-        out.push({ title: a.title, code: a.code, ts: a.releaseDate, cat: c.catalogId });
-      });
-    });
-    out.sort((a, b) => b.ts - a.ts);
-    news = out.slice(0, 30);
-    newsState = news.length ? 'ok' : 'empty';
-  } catch (e) {
-    newsState = 'error';
-  }
-  renderNews();
-}
-
-function renderNews() {
-  const box = $('#newsList');
-  if (newsState === 'loading') {
-    box.innerHTML = '<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>';
-    return;
-  }
-  if (newsState === 'error') {
-    box.innerHTML = '<div class="empty">' + esc(t('newsError')) + '<br><br><button class="icon-btn" id="newsRetry" type="button" style="width:auto;padding:0 12px;height:30px;font-size:11px">' + esc(t('retry')) + '</button></div>';
-    const b = $('#newsRetry');
-    if (b) b.addEventListener('click', () => loadNews(true));
-    return;
-  }
-  if (!news.length) {
-    box.innerHTML = '<div class="empty">' + esc(t('newsEmpty')) + '</div>';
-    return;
-  }
-  box.innerHTML = news.map(n => {
-    const tag = TAGS[n.cat] || ['news2', 'tagNews'];
-    return '<a class="news" href="https://www.binance.com/en/support/announcement/' + esc(n.code) + '" target="_blank" rel="noopener">' +
-      '<div class="t">' + esc(n.title) + '</div>' +
-      '<div class="m"><span class="tag ' + tag[0] + '">' + esc(t(tag[1])) + '</span><span>' + esc(ago(n.ts)) + '</span></div>' +
-      '</a>';
-  }).join('');
-}
-
-function openDrawer() {
-  $('#drawer').classList.add('open');
-  $('#drawer').setAttribute('aria-hidden', 'false');
-  $('#scrim').classList.add('on');
-  loadNews(false);
-}
-function closeDrawer() {
-  $('#drawer').classList.remove('open');
-  $('#drawer').setAttribute('aria-hidden', 'true');
-  $('#scrim').classList.remove('on');
-}
-
 /* ============================== install ============================== */
 let installPrompt = null;
 function isStandalone() {
@@ -1101,6 +969,12 @@ function installHelp() {
   const steps = ios ? t('installIos') : t('installOther');
   $('#installSteps').innerHTML = (Array.isArray(steps) ? steps : []).map(s => '<li>' + s + '</li>').join('');
   $('#sheet').hidden = false;
+}
+function refreshNow() {
+  const b = $('#btnRefresh');
+  b.classList.add('spin');
+  setTimeout(() => b.classList.remove('spin'), 800);
+  if (state.mode === 'auto') runAuto(); else runManual();
 }
 function bindInstall() {
   const btn = $('#btnInstall');
@@ -1144,8 +1018,10 @@ function applyLang() {
   $('#langCode').textContent = lang.toUpperCase();
   $$('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   $('#go').textContent = state.mode === 'auto' ? t('scan') : t('analyze');
+  const rf = $('#btnRefresh');
+  rf.title = t('refresh');
+  rf.setAttribute('aria-label', t('refresh'));
   render();
-  if (news.length || newsState !== 'idle') renderNews();
 }
 
 function setMode(mode) {
@@ -1244,12 +1120,9 @@ function bind() {
     if (state.plan && !state.plan.error) state.countOverride = state.plan.count;
     render();
   });
-  $('#btnNews').addEventListener('click', openDrawer);
-  $('#newsClose').addEventListener('click', closeDrawer);
-  $('#newsRefresh').addEventListener('click', () => loadNews(true));
-  $('#scrim').addEventListener('click', closeDrawer);
+  $('#btnRefresh').addEventListener('click', refreshNow);
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeDrawer(); $('#sheet').hidden = true; $('#donSheet').hidden = true; }
+    if (e.key === 'Escape') { $('#sheet').hidden = true; $('#donSheet').hidden = true; }
   });
   bindInstall();
 }

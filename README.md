@@ -10,8 +10,6 @@
   <a href="https://moonspiid.github.io/trader-botview/"><b>Open the app</b></a>
 </p>
 
-<p align="center"><sub>English · <a href="README.fr.md">Français</a></sub></p>
-
 A Futures grid bot is not something you eyeball. It needs a lower bound, an upper bound, a number of levels, a margin per grid, a leverage, a stop: twelve numbers that have to stay consistent with each other. One wrong step and the bot opens three orders instead of twenty, or gets liquidated on a wick.
 
 BotView computes those twelve values from the live market, puts them on a single phone screen, and gives each one a **Copy** button.
@@ -25,7 +23,6 @@ BotView computes those twelve values from the live market, puts them on a single
 - [How the grid is computed](#how-the-grid-is-computed)
 - [AI auto mode](#ai-auto-mode)
 - [Languages](#languages)
-- [News panel](#news-panel)
 - [Install on mobile](#install-on-mobile)
 - [Good to know](#good-to-know)
 - [Support the project](#support-the-project)
@@ -34,13 +31,13 @@ BotView computes those twelve values from the live market, puts them on a single
 
 ## What the tool does
 
-- **One screen, no scrolling** — header, mode, pair, four indicators, then the twelve grid cells. It all fits a phone, even at 390 × 844. Only the news panel and its content scroll.
+- **One screen, no scrolling** — header, mode, pair, four indicators, then the twelve grid cells. It all fits a phone, even at 390 × 844, with nothing to scroll.
 - **No pair list** — in manual mode you type the symbol (`BTC`, `BTCUSDT`, `ethusdt`), it gets normalised and checked against the Binance filters. In auto mode the scan picks the pair.
 - **Bilingual labels** — every cell shows the local term followed by the English term in grey (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). A trader pasting those values into an English Binance interface finds the right field immediately, even when their interface is in French.
 - **Twelve copyable values** — each cell is a button: one tap copies the raw value, ready to paste into Binance, and the cell turns green with "Copied". The grid count stays editable: type it, use the − / + buttons, or go back to the automatic value.
 - **Futures maths** — isolated margin mode, leverage, margin per grid, quantity per grid rounded down to `stepSize`, bounds rounded to `tickSize`, TP and SL, range width and net profit per grid after fees.
 - **Language picked by itself** — on first load the page derives the language from the time zone (French in Algeria, Morocco, Tunisia, Senegal, France, Québec) then from the browser language, falling back to English. The globe button in the header switches and remembers the choice.
-- **News panel** — a sliding panel lists Binance announcements (listings, delistings, maintenance, API, airdrops) with relative dates, no API key.
+- **Refresh button** — the ↻ in the header re-runs the analysis on the current pair and settings, or rescans in auto mode, without touching your capital, leverage or grid count.
 - **Installable** — install button, `manifest`, service worker and cache: the app opens full screen and starts offline.
 - **Zero dependencies** — a single HTML page, no framework, no build step, no keys, no order ever sent.
 
@@ -132,17 +129,6 @@ No network call: detection uses the time zone and the browser, not an IP databas
 The local language and English work together: the interface is in the detected language, every cell label carries its English equivalent in grey, and any string missing from a translation falls back to English rather than to a technical key.
 
 The interface switches between two languages only: French and English. A Spanish, Portuguese, Arabic or Japanese time zone lands on English — no third language is offered. The **globe** button in the header shows the active language (`FR` or `EN`) and toggles between them on tap, with the language name as confirmation. The choice is stored and takes priority over detection. Numbers follow the language: `59 752,01` in French, `59,752.01` in English.
-
-## News panel
-
-The ☰ button opens a sliding panel fed by Binance public announcements (`bapi/composite/v1/public/cms/article/list`), with no key and no proxy:
-
-- listings and new perpetual contracts,
-- pair delistings,
-- wallet and API maintenance,
-- airdrops and platform news.
-
-Each entry carries a tag, a relative date ("9 hours ago") and opens the original announcement. A ↻ button reloads the list. A network failure shows a **Retry** button instead of a blank screen.
 
 ## Install on mobile
 
