@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BotView — Grille Futures Binance</title>
-<meta name="description" content="Paramètres de bot de grille Futures Binance calculés en direct : bornes, nombre de grilles, marge, levier, TP et SL, chacun copiable en un appui.">
+<title>Trader BotView — Grille Futures Binance</title>
+<meta name="description" content="Trader BotView — paramètres de bot de grille Futures Binance calculés en direct : bornes, nombre de grilles, marge, levier, TP et SL, chacun copiable en un appui.">
 <meta name="theme-color" content="#06080c">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BotView">
+<meta name="apple-mobile-web-app-title" content="Trader BotView">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -39,7 +39,7 @@ body{display:flex;align-items:center;justify-content:center}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:36px}
 .brand{display:flex;align-items:center;gap:7px;min-width:0}
 .brand img{width:26px;height:26px;border-radius:7px;flex:0 0 auto}
-.brand .bt{font-size:13.5px;font-weight:800;letter-spacing:-.01em;line-height:1.1}
+.brand .bt{font-size:13px;font-weight:800;letter-spacing:-.015em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .brand .bs{display:block;font-size:8px;color:var(--dim);letter-spacing:.15em;text-transform:uppercase;margin-top:1px}
 .tools{display:flex;align-items:center;gap:5px;flex:0 0 auto}
 #lang{
@@ -109,6 +109,7 @@ body{display:flex;align-items:center;justify-content:center}
 }
 .cell:active{border-color:#3d5170}
 .cell .k{font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .k i{font-style:normal;font-weight:600;color:#3b4b64;letter-spacing:.05em}
 .cell .v{
   font-family:var(--mono);font-size:clamp(12px,4vw,17px);font-weight:700;line-height:1.05;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -224,7 +225,7 @@ body{display:flex;align-items:center;justify-content:center}
     <div class="brand">
       <img src="assets/icon-192.png" alt="">
       <div>
-        <div class="bt">BotView</div>
+        <div class="bt">Trader BotView</div>
         <span class="bs" data-i18n="tagline">Grille Futures</span>
       </div>
     </div>
@@ -315,9 +316,10 @@ const I18N = {
     scanning: 'Analyse', loading: 'Calcul', ready: 'Prêt',
     errPair: 'Paire inconnue', errNet: 'Réseau indisponible', errSmall: 'Capital trop faible pour {n} grilles',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
+    gridsCap: 'plafonné à {n} grilles par le capital',
     newsTitle: 'Actualités du marché', newsAll: 'Tout voir ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'Aucune actualité disponible.', newsError: 'Actualités indisponibles', retry: 'Réessayer',
-    installTitle: 'Installer BotView', ok: 'Compris',
+    installTitle: 'Installer Trader BotView', ok: 'Compris',
     installIos: ['Appuyez sur <b>Partager</b> dans Safari.', 'Choisissez <b>Sur l\'écran d\'accueil</b>.', 'Validez avec <b>Ajouter</b>.'],
     installOther: ['Ouvrez le menu du navigateur.', 'Choisissez <b>Installer l\'application</b> ou <b>Ajouter à l\'écran d\'accueil</b>.', 'L\'app s\'ouvre en plein écran.'],
     tagList: 'Listing', tagDelist: 'Delisting', tagMaint: 'Maintenance', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'Actu',
@@ -335,9 +337,10 @@ const I18N = {
     scanning: 'Scanning', loading: 'Loading', ready: 'Ready',
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
+    gridsCap: 'capped at {n} grids by your capital',
     newsTitle: 'Market news', newsAll: 'See all ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'No news available.', newsError: 'News unavailable', retry: 'Retry',
-    installTitle: 'Install BotView', ok: 'Got it',
+    installTitle: 'Install Trader BotView', ok: 'Got it',
     installIos: ['Tap <b>Share</b> in Safari.', 'Choose <b>Add to Home Screen</b>.', 'Tap <b>Add</b>.'],
     installOther: ['Open the browser menu.', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.', 'It opens full screen.'],
     tagList: 'Listing', tagDelist: 'Delisting', tagMaint: 'Maintenance', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'News',
@@ -355,9 +358,10 @@ const I18N = {
     scanning: 'Analizando', loading: 'Cargando', ready: 'Listo',
     errPair: 'Par desconocido', errNet: 'Red no disponible', errSmall: 'Capital insuficiente para {n} rejillas',
     auto: 'auto', langName: 'Español', warnMinN: 'margen/rejilla bajo el mínimo de {n} $: reduce las rejillas',
+    gridsCap: 'limitado a {n} rejillas por el capital',
     newsTitle: 'Noticias del mercado', newsAll: 'Ver todo ↗', newsFutures: 'Futuros ↗',
     newsEmpty: 'Sin noticias disponibles.', newsError: 'Noticias no disponibles', retry: 'Reintentar',
-    installTitle: 'Instalar BotView', ok: 'Entendido',
+    installTitle: 'Instalar Trader BotView', ok: 'Entendido',
     installIos: ['Toca <b>Compartir</b> en Safari.', 'Elige <b>Añadir a pantalla de inicio</b>.', 'Toca <b>Añadir</b>.'],
     installOther: ['Abre el menú del navegador.', 'Elige <b>Instalar aplicación</b> o <b>Añadir a pantalla de inicio</b>.', 'Se abre a pantalla completa.'],
     tagList: 'Listado', tagDelist: 'Exclusión', tagMaint: 'Mantenimiento', tagApi: 'API', tagAirdrop: 'Airdrop', tagNews: 'Noticia',
@@ -366,7 +370,7 @@ const I18N = {
 };
 let lang = 'fr';
 const t = (key, vars) => {
-  let s = (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key;
+  let s = (I18N[lang] && I18N[lang][key]) || I18N.en[key] || I18N.fr[key] || key;
   if (typeof s !== 'string') return s;
   if (vars) Object.keys(vars).forEach(k => { s = s.split('{' + k + '}').join(vars[k]); });
   return s;
@@ -668,14 +672,13 @@ function buildGrid(m, capital, lev, override) {
   const upper = center * (1 + width / 200);
   const stepTarget = clamp(m.atrPct * 0.55, 0.5, 2.6);
   const manual = Number.isFinite(override) && override >= MIN_GRIDS;
-  let count = manual
-    ? clamp(Math.round(override), MIN_GRIDS, MAX_GRIDS)
-    : clamp(Math.round(width / stepTarget), MIN_GRIDS, AUTO_MAX);
-  let perNotional = notional / count;
-  if (!manual) {
-    while (perNotional < minN * 1.05 && count > MIN_GRIDS) { count -= 1; perNotional = notional / count; }
-    if (perNotional < minN) return { error: 'small', count: count };
-  }
+  const wanted = manual ? Math.round(override) : Math.round(width / stepTarget);
+  const maxByCapital = Math.max(MIN_GRIDS, Math.floor(notional / (minN * 1.05)));
+  const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
+  const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
+  const capped = wanted > cap;
+  const perNotional = notional / count;
+  if (perNotional < minN) return { error: 'small', count: count };
   let qty = roundStep(perNotional / m.price, step, 'floor');
   if (qty < minQ) qty = roundStep(minQ, step, 'round');
   if (!qty) return { error: 'small', count: count };
@@ -688,6 +691,7 @@ function buildGrid(m, capital, lev, override) {
     lower: roundStep(lower, tick, 'round'),
     upper: roundStep(upper, tick, 'round'),
     count: count, geo: geo, width: width, stepPct: stepPct, manual: manual,
+    capped: capped, cap: cap,
     warn: perNotional < minN ? 'minNotional' : null, minN: minN,
     perGrid: total / count, total: total, notional: notional, qty: qty,
     tp: roundStep(upper, tick, 'round'),
@@ -710,27 +714,34 @@ function qtyDec(n) {
   const i = s.indexOf('.');
   return i < 0 ? 0 : s.length - i - 1;
 }
+function label(key) {
+  const local = t(key);
+  const en = I18N.en[key];
+  if (!en || en === local) return esc(local);
+  return esc(local) + ' <i>' + esc(en) + '</i>';
+}
+
 function cellHtml(key, value, copyVal) {
   return '<button class="cell" type="button" data-copy="' + esc(copyVal) + '">' +
-    '<span class="k">' + esc(t(key)) + '</span>' +
+    '<span class="k">' + label(key) + '</span>' +
     '<span class="v">' + esc(value) + '</span>' +
     '<span class="cp">' + COPY_ICON + '<span class="cpt">' + esc(t('copy')) + '</span></span>' +
     '</button>';
 }
-function kpiHtml(label, value) {
-  return '<div class="kpi"><span>' + esc(label) + '</span><b>' + esc(value) + '</b></div>';
+function kpiHtml(lab, value) {
+  return '<div class="kpi"><span>' + lab + '</span><b>' + esc(value) + '</b></div>';
 }
 
 function render() {
   const m = state.metrics, p = state.plan;
   if (!m || !p || p.error) {
-    $('#kpis').innerHTML = kpiHtml(t('kPrice'), '—') + kpiHtml('ATR', '—') + kpiHtml('ADX', '—') + kpiHtml('FUNDING', '—');
+    $('#kpis').innerHTML = kpiHtml(label('kPrice'), '—') + kpiHtml('ATR', '—') + kpiHtml('ADX', '—') + kpiHtml('FUNDING', '—');
     $('#cfg').innerHTML = CELL_KEYS.map(k => cellHtml(k, '—', '')).join('');
     $('#note').innerHTML = p && p.error ? '<span class="bad">' + esc(t('errSmall', { n: p.count })) + '</span>' : esc(t('emptyHint'));
     return;
   }
   $('#kpis').innerHTML =
-    kpiHtml(t('kPrice'), nf(m.price, p.dec != null ? p.dec : priceDec(m.price))) +
+    kpiHtml(label('kPrice'), nf(m.price, p.dec != null ? p.dec : priceDec(m.price))) +
     kpiHtml('ATR', nf(m.atrPct, 2) + ' %') +
     kpiHtml('ADX', m.adx == null ? '—' : nf(m.adx, 1)) +
     kpiHtml('FUNDING', m.funding == null ? '—' : (m.funding >= 0 ? '+' : '') + nf(m.funding, 4) + ' %');
@@ -758,14 +769,17 @@ function rowsFor(p) {
 
 function noteHtml(p) {
   if (p.warn === 'minNotional') return '<span class="warn">' + esc(t('warnMinN', { n: nf(p.minN || 5, 0) })) + '</span>';
-  const bits = [t('netPerGrid', { n: nf(p.netPerGrid, 2) }), t('widthNote', { n: nf(p.width, 1) })];
+  const tail = p.capped
+    ? '<span class="warn">' + esc(t('gridsCap', { n: p.count })) + '</span>'
+    : t('widthNote', { n: nf(p.width, 1) });
+  const bits = [t('netPerGrid', { n: nf(p.netPerGrid, 2) }), tail];
   if (p.lev >= 5) bits.push('<span class="warn">' + esc(t('riskWarn', { n: p.lev })) + '</span>');
   return bits.join(' · ');
 }
 
 function gridsCell(p) {
   return '<div class="cell cell-edit">' +
-    '<div class="krow"><span class="k">' + esc(t('cGrids')) + '</span>' +
+    '<div class="krow"><span class="k">' + label('cGrids') + '</span>' +
       (p.manual
         ? '<button class="autoBtn" type="button" data-auto="1">' + esc(t('auto')) + '</button>'
         : '<span class="autoTag">' + esc(t('auto')) + '</span>') +
@@ -805,7 +819,7 @@ function updateValues() {
   });
   const head = cells[5] && cells[5].querySelector('.krow');
   if (head && !!head.querySelector('[data-auto]') !== !!p.manual) {
-    head.innerHTML = '<span class="k">' + esc(t('cGrids')) + '</span>' +
+    head.innerHTML = '<span class="k">' + label('cGrids') + '</span>' +
       (p.manual ? '<button class="autoBtn" type="button" data-auto="1">' + esc(t('auto')) + '</button>'
                 : '<span class="autoTag">' + esc(t('auto')) + '</span>');
   }
@@ -1121,7 +1135,9 @@ function bind() {
     const digits = String(e.target.value).replace(/[^0-9]/g, '');
     if (!digits) { state.countOverride = null; recompute(); return; }
     state.countOverride = clamp(parseInt(digits, 10) || MIN_GRIDS, MIN_GRIDS, MAX_GRIDS);
-    recompute();
+    recompute(true);
+    if (state.plan && !state.plan.error) state.countOverride = state.plan.count;
+    render();
   });
   $('#btnNews').addEventListener('click', openDrawer);
   $('#newsClose').addEventListener('click', closeDrawer);

@@ -33,6 +33,7 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 
 - **Un seul écran, pas de défilement** — en-tête, mode, paire, quatre indicateurs, puis les douze cases de la grille. Tout tient dans un téléphone, même en 390 × 844. Seuls le volet d'actualités et son contenu défilent.
 - **Aucune liste de paires** — en mode manuel vous tapez le symbole (`BTC`, `BTCUSDT`, `ethusdt`), il est normalisé et vérifié contre les filtres Binance. En mode auto, c'est le scan qui choisit la paire.
+- **Libellés bilingues** — chaque case affiche le terme local suivi du terme anglais en gris (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). Un trader qui colle ces valeurs dans une interface Binance en anglais retrouve immédiatement le bon champ, même si son interface est en français ou en espagnol.
 - **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ». Le nombre de grilles reste modifiable : saisie directe, boutons − / +, ou retour au calcul automatique.
 - **Calcul Futures** — mode de marge isolé, levier, marge par grille, quantité par grille arrondie au `stepSize`, bornes arrondies au `tickSize`, TP et SL, largeur de plage et profit net par grille après frais.
 - **Langue choisie toute seule** — au premier lancement, la page déduit la langue du fuseau horaire (français en Algérie, au Maroc, en Tunisie, au Sénégal, en France, au Québec) puis de la langue du navigateur, avec l'anglais en repli. Le bouton globe de l'en-tête passe à la langue suivante et mémorise le choix.
@@ -67,7 +68,7 @@ Le champ **Grilles** est un vrai champ de saisie, pas une valeur figée :
 - **Manuel** : tapez un nombre, ou appuyez sur **−** / **+**. La case passe en `auto` cliquable pour revenir au calcul.
 - **Petit capital** : 2 ou 3 grilles suffisent pour démarrer. Avec 20 $ et un levier de 3, deux grilles passent le notionnel minimum ; le reste des valeurs (marge par grille, quantité, TP, SL) se recalcule à chaque frappe.
 - **Capital en direct** : chaque chiffre tapé dans le champ Capital recalcule immédiatement la marge totale, la marge par grille et le nombre de grilles, sans attendre de quitter le champ. La marge totale vaut exactement le capital saisi, et la marge par grille vaut capital ÷ grilles, sans arrondi caché.
-- **Garde-fou** : si la marge par grille descend sous le notionnel minimum du contrat (5 $ en général), la ligne du bas passe en alerte : « marge/grille sous le minimum : réduisez les grilles ».
+- **Plafond forcé par le capital** : le nombre de grilles ne peut jamais dépasser ce que les fonds supportent. La limite vaut `notionnel ÷ (notionnel minimum × 1,05)`, soit 6 grilles à 12 $ avec un levier de 3, 11 à 30 $, 114 à 200 $. Tapez 150 grilles avec 20 $ : le champ se recale à 11 à la sortie, la ligne du bas indique « plafonné à 11 grilles par le capital », et les valeurs restent exploitables.
 
 Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'unité de temps, jusqu'à ce que vous reveniez à `auto`.
 
@@ -117,6 +118,8 @@ Il n'y a plus de liste de langues à choisir : la page se règle toute seule.
 4. **Repli** — anglais.
 
 Aucun appel réseau : la détection utilise le fuseau et le navigateur, pas une base d'adresses IP.
+
+La langue locale et l'anglais fonctionnent ensemble : l'interface est dans la langue détectée, chaque libellé de case porte son équivalent anglais en gris, et toute chaîne absente d'une traduction retombe sur l'anglais plutôt que sur une clé technique.
 
 Le bouton **globe** de l'en-tête affiche la langue active (`FR`, `EN`, `ES`) et passe à la suivante d'un appui, avec le nom de la langue en confirmation. Le choix est stocké et prioritaire sur la détection. Les nombres suivent la langue : `59 752,01` en français, `59,752.01` en anglais.
 
