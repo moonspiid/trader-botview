@@ -12,7 +12,7 @@
   <img alt="price, free" src="https://img.shields.io/badge/price-free-2ea043?labelColor=30363d">
 </p>
 
-**Le marché sous les yeux, la config dans le presse-papiers.** Une page unique qui lit une paire Binance en direct, en déduit la stratégie de bot la plus adaptée, et sort les paramètres exacts — grille, DCA ou suivi de tendance — avec les niveaux de stop et de take-profit prêts à copier.
+**Le marché sous les yeux, la config dans le presse-papiers.** Un tableau de bord plein écran, sans défilement : il lit Binance en direct, choisit la stratégie de bot la plus adaptée, et sort les paramètres exacts — grille, DCA ou suivi de tendance — avec les niveaux de stop et de take-profit prêts à copier.
 
 <h3 align="center">
   <a href="https://moonspiid.github.io/trader-botview/" target="_blank" rel="noopener noreferrer">↖ Ouvrir l'outil</a>
@@ -21,7 +21,7 @@
 <p align="center">
   Aucun compte, aucun serveur, aucune installation — ouvrez la page et lisez le marché.
   <br>
-  Aucune clé API n'est demandée, aucun ordre n'est envoyé.
+  Mode manuel pour choisir votre paire, mode auto pour laisser le scanner choisir. Aucune clé API demandée, aucun ordre envoyé.
 </p>
 
 ## Sommaire
@@ -42,6 +42,9 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
 
 ## Fonctionnalités
 
+- **Tableau de bord plein écran** — trois volets sur une seule page, sans défilement : commandes et marché à gauche, graphique et plan au centre, configurations copiables à droite. Seuls les blocs de texte défilent, à l'intérieur de leur panneau.
+- **Mode manuel** — vous choisissez la paire, l'unité de temps et le capital, puis **Analyser**.
+- **Mode auto** — vous saisissez votre capital et le scanner compare **8 paires × 1h et 4h**, classe les 16 combinaisons sur 100 selon la confiance, le spread, la liquidité et le rendement attendu, puis charge la meilleure. Changer le capital relance le scan.
 - **Analyse en direct** — 500 bougies Binance en 15m, 1h, 4h ou 1d, plus le ticker 24 h et le carnet d'ordres.
 - **Indicateurs calculés dans le navigateur** — EMA 20/50/200, RSI 14, MACD 12/26/9, ATR 14, Bollinger 20/2, ADX 14 avec +DI/−DI, ratio de volume, spread et déséquilibre du carnet.
 - **Détection de régime** — range, tendance haussière, tendance baissière ou transition. Le régime décide de la stratégie, pas l'inverse.
@@ -53,14 +56,13 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
 - **Niveaux SL / TP copiables** — entrée, stop, TP1, TP2 et quantité, chacun avec son bouton de copie, plus un ordre de sortie prêt à coller (OCO en spot, `STOP_MARKET` + `TAKE_PROFIT_MARKET` en futures, `TAKE_PROFIT_LIMIT` pour le DCA).
 - **Cinq blocs de sortie** : rapport texte, JSON de configuration complet (avec les niveaux de grille), paramètres d'ordre Binance, cURL et Python signés sur le testnet, checklist de sécurisation.
 - **Vérifications de faisabilité** — `tickSize`, `stepSize`, `minQty`, `minNotional`, profit par grille supérieur aux frais, liquidité 24 h, funding.
-- **Mise en page en deux volets** — commandes et diagnostic à gauche, graphique et plan à droite, avec un panneau latéral fixe sur grand écran.
 - **Zéro dépendance** — pas de framework, pas de build, pas de requête vers un serveur tiers : le graphique est dessiné en canvas et tout le calcul se fait dans la page.
 
 ## Démarrage rapide
 
 1. Ouvrir **[la version en ligne](https://moonspiid.github.io/trader-botview/)**.
-2. Choisir une paire (`BTCUSDT`, `ETHUSDT`, …), une unité de temps et le capital.
-3. Presser **Analyser**.
+2. Choisir un mode : **Manuel** (vous choisissez la paire) ou **Auto** (le scanner propose les meilleures options pour votre capital).
+3. En manuel : paire, unité de temps, capital, puis **Analyser**. En auto : capital, puis **Scanner le marché** (le scan démarre tout seul au premier passage).
 4. Lire le **Diagnostic** et le **Plan recommandé**, puis descendre sur **Configurations prêtes à copier**.
 5. Onglet **SL / TP** : copier les niveaux un par un, ou l'ordre de sortie complet.
 6. Tester sur [testnet.binance.vision](https://testnet.binance.vision) avant tout argent réel.
@@ -87,6 +89,7 @@ LICENSE
 - **Données** — `/api/v3/klines`, `/api/v3/ticker/24hr`, `/api/v3/depth` et `/api/v3/exchangeInfo`. La page essaie plusieurs hôtes dans l'ordre (`api.binance.com`, `data-api.binance.vision`, `api-gcp.binance.com`, `api4.binance.com`) et garde celui qui répond.
 - **Calculs** — EMA, RSI de Wilder, MACD, ATR de Wilder, Bollinger, ADX de Wilder, ratios de volume, spread et déséquilibre du carnet.
 - **Décision** — le régime et la qualité d'exécution (spread, liquidité) déterminent la stratégie ; les paramètres sont ensuite dérivés de l'ATR et du capital.
+- **Scan auto** — `scanMarket()` interroge 8 paires sur 2 unités de temps par lots de 4 requêtes, note chaque couple avec `scoreCandidate()`, puis applique le même moteur d'analyse à la meilleure option.
 - **Contraintes Binance** — chaque prix et chaque quantité sont arrondis au `tickSize` et au `stepSize` de la paire, et comparés au `minNotional`.
 - **Mémoire** — paire, unité de temps et paramètres sont conservés dans le navigateur (`localStorage`).
 - Pousser sur `main` republie le site via GitHub Pages.

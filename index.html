@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Trader BotView — Analyse marché & configuration de bot Binance</title>
-<meta name="description" content="Analyse technique en direct (RSI, MACD, ADX, ATR, Bollinger) et génération de configurations prêtes à copier pour votre bot Binance : grid, DCA, suivi de tendance.">
+<meta name="description" content="Tableau de bord plein écran : analyse Binance en direct, mode manuel ou scan automatique adapté à votre capital, et configurations de bot prêtes à copier (grid, DCA, tendance) avec SL/TP.">
 <meta name="theme-color" content="#06080c">
 <meta property="og:title" content="Trader BotView">
-<meta property="og:description" content="Analyse Binance en direct + configurations de bot prêtes à copier.">
+<meta property="og:description" content="Tableau de bord Binance plein écran : mode manuel ou auto, configurations de bot prêtes à copier.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0f16'/%3E%3Crect x='14' y='22' width='8' height='24' rx='2' fill='%231fd47f'/%3E%3Crect x='17' y='14' width='2' height='38' fill='%231fd47f'/%3E%3Crect x='40' y='26' width='8' height='20' rx='2' fill='%23ff4d6d'/%3E%3Crect x='43' y='18' width='2' height='32' fill='%23ff4d6d'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -281,14 +281,127 @@ footer b{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
 }
+
+/* ================= dashboard plein écran ================= */
+[hidden]{display:none !important}
+html,body{height:100%}
+body{overflow:hidden}
+.dash{position:relative;z-index:1;height:100dvh;max-width:1760px;margin:0 auto;padding:9px 11px 11px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px}
+.bar{display:flex;align-items:center;gap:10px;min-height:42px}
+.bar .brand{gap:9px}
+.bar .brand .logo{width:34px;height:34px;border-radius:10px}
+.bar h1{font-size:15px;font-weight:700;letter-spacing:.01em;line-height:1.1}
+.bar h1 span{color:var(--acc)}
+.bar .brand .sub{font-size:8.5px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.modes{display:flex;gap:3px;background:#080d14;border:1px solid var(--line2);border-radius:9px;padding:3px;margin-left:4px}
+.modes button{background:transparent;border:0;color:var(--muted);font-family:var(--sans);font-size:11.5px;font-weight:600;padding:5px 15px;border-radius:7px;cursor:pointer;transition:.15s}
+.modes button:hover{color:var(--txt)}
+.modes button.on{background:var(--acc);color:#0b0e13}
+.bar-right{margin-left:auto;display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:10px;color:var(--dim);white-space:nowrap}
+.status{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-family:var(--sans);font-size:11px}
+.bar-right .auto{display:inline-flex;align-items:center;gap:4px;font-family:var(--sans);font-size:10px;color:var(--dim);cursor:pointer}
+.ghlink{color:var(--muted);border:1px solid var(--line2);padding:4px 9px;border-radius:7px;font-family:var(--sans);font-size:11px}
+.ghlink:hover{color:var(--txt);border-color:#3a4d68;text-decoration:none}
+.grid{display:grid;grid-template-columns:288px minmax(0,1fr) minmax(336px,392px);gap:9px;min-height:0}
+.col{display:flex;flex-direction:column;gap:9px;min-height:0;min-width:0;overflow:hidden}
+.panel{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.008)),var(--panel);border:1px solid var(--line);border-radius:11px;display:flex;flex-direction:column;min-height:0;overflow:hidden;box-shadow:0 18px 40px -34px #000}
+.panel.grow{flex:1 1 auto}
+.panel>.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 10px;border-bottom:1px solid rgba(26,36,52,.75);flex:0 0 auto;min-height:34px}
+.panel>.ph h2{font-size:11.5px;font-weight:600;letter-spacing:.01em;display:flex;align-items:center;gap:6px}
+.panel>.ph .sub{font-size:9.5px;color:var(--dim)}
+.panel>.pb{padding:9px 10px;overflow:auto;min-height:0;flex:1 1 auto;scrollbar-width:thin;scrollbar-color:#1e2b3d transparent}
+.panel>.pb::-webkit-scrollbar{width:6px;height:6px}
+.panel>.pb::-webkit-scrollbar-thumb{background:#1e2b3d;border-radius:6px}
+.panel .lbl{font-size:8.5px;letter-spacing:.1em;margin-bottom:3px}
+.panel input{font-size:12px;padding:6px 8px}
+.panel .seg button{flex:1;padding:5px 0;font-size:11px}
+.panel .btn.primary{width:100%;padding:8px;font-size:12px;margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid2+.grid2{margin-top:7px}
+.hint{font-size:9.5px;color:var(--dim);line-height:1.5;margin-top:7px}
+.chart-panel{flex:1 1 auto;min-height:190px}
+.chart-panel .chart-wrap{flex:1 1 auto;height:auto;min-height:0;border:0;border-radius:0;background:transparent}
+.chart-panel #chart{width:100%;height:100%;display:block}
+.chart-panel .legend{margin:0;padding:5px 10px 7px;border-top:1px solid rgba(26,36,52,.6);font-size:9px;gap:11px}
+.plan-panel{flex:0 1 auto;max-height:55%}
+.plan-panel .pb{display:grid;gap:7px;align-content:start}
+.plan-panel .regime-desc{font-size:10.5px;line-height:1.45;margin:0;color:var(--muted)}
+.plan-panel .why{margin:0;padding-left:15px;font-size:10.5px;line-height:1.45;color:var(--muted);display:grid;gap:2px}
+.plan-panel .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px 7px;margin:0}
+.plan-panel .metrics>div{background:#080d14;border:1px solid var(--line);border-radius:7px;padding:4px 6px;min-width:0}
+.plan-panel .metrics dt{font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-panel .metrics dd{margin:1px 0 0;font-family:var(--mono);font-size:10.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plan-panel .warn{font-size:10px;padding:5px 7px;gap:6px;line-height:1.4}
+.plan-panel .exit-actions{margin:0;gap:5px}
+.plan-panel .exit-actions .copy{padding:3px 8px;font-size:9.5px}
+.more summary{cursor:pointer;font-size:10px;color:var(--dim);padding:3px 0;list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"▸ ";color:var(--acc)}
+.more[open] summary::before{content:"▾ "}
+.more .bias,.more .conf{margin:7px 0}
+.more .tbl{font-size:10px}
+.more .checks{display:grid;gap:3px;margin-top:6px}
+.more .check{font-size:10px}
+.mkt .row{font-size:11px;padding:5px 0}
+.mkt-sub{font-size:9px;margin-top:6px}
+.suggest{display:grid;gap:5px}
+.sg{display:grid;grid-template-columns:auto 1fr auto;grid-template-rows:auto auto;gap:1px 8px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#080d14;cursor:pointer;text-align:left;width:100%;font-family:var(--sans)}
+.sg:hover{border-color:var(--line2);background:#0b1119}
+.sg.on{border-color:rgba(240,185,11,.5);background:rgba(240,185,11,.07)}
+.sg .sym{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--txt)}
+.sg .tf{font-family:var(--mono);font-size:8.5px;color:var(--dim)}
+.sg .strat{font-size:9.5px;color:var(--muted);grid-column:1/3}
+.sg .sc{grid-row:1/3;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--acc)}
+.sg .sc small{display:block;font-size:7.5px;color:var(--dim);font-weight:400;text-align:right;letter-spacing:.06em}
+.sg.wait .sc{color:var(--dim)}
+.sg.grid .strat{color:var(--acc)}
+.sg.dca .strat{color:var(--up)}
+.sg.trend .strat{color:var(--violet)}
+.tips{font-size:10px;color:var(--muted);line-height:1.6;display:grid;gap:7px}
+.tips b{color:var(--txt)}
+.col-right .panel>.ph{padding:7px 10px}
+.col-right .tabs{flex-wrap:wrap;padding:6px 9px 0;gap:3px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.col-right .tabs button{padding:4px 8px;font-size:9.5px;border-radius:6px}
+.col-right .tab-panels{flex:1 1 auto;min-height:0;display:flex;padding:0}
+.col-right .tab-panel{display:none;flex:1 1 auto;min-height:0;flex-direction:column;padding:7px 10px 9px;overflow:auto;scrollbar-width:thin;scrollbar-color:#1e2b3d transparent}
+.col-right .tab-panel.on{display:flex}
+.col-right .tab-panel::-webkit-scrollbar{width:6px}
+.col-right .tab-panel::-webkit-scrollbar-thumb{background:#1e2b3d;border-radius:6px}
+.col-right .pre-head{font-size:9px;letter-spacing:.08em;margin-bottom:5px;flex:0 0 auto}
+.col-right .pre-head .copy{padding:3px 9px;font-size:9.5px}
+.col-right pre{flex:1 1 auto;min-height:0;overflow:auto;margin:0;max-height:none;font-size:9.8px;line-height:1.5;padding:9px;border-radius:8px;scrollbar-width:thin;scrollbar-color:#1e2b3d transparent}
+.col-right pre::-webkit-scrollbar{width:6px;height:6px}
+.col-right pre::-webkit-scrollbar-thumb{background:#1e2b3d;border-radius:6px}
+.col-right .exit-grid{grid-template-columns:1fr;gap:5px;margin-bottom:8px}
+.col-right .val-chip{padding:5px 8px}
+.col-right .val-chip .num{font-size:11px}
+.disc-line{font-size:8.5px;color:#3f4d61;text-align:center;padding:5px 2px 0;line-height:1.4;flex:0 0 auto}
+@media (max-height:820px){
+  .panel>.ph{min-height:30px;padding:5px 9px}
+  .panel>.pb{padding:7px 9px}
+  .bar{min-height:36px}
+  .bar .brand .logo{width:30px;height:30px}
+  .plan-panel .why{font-size:10px}
+  .plan-panel .metrics dd{font-size:10px}
+}
+@media (max-height:760px){#cardTip{display:none!important}.chart-panel .legend{display:none}}
+@media (max-width:1280px){.grid{grid-template-columns:268px minmax(0,1fr) minmax(300px,340px)}}
+@media (max-width:1120px){
+  body{overflow:auto}
+  .dash{height:auto;min-height:100dvh;grid-template-rows:auto auto}
+  .grid{grid-template-columns:1fr}
+  .col{overflow:visible}
+  .chart-panel .chart-wrap{height:300px;flex:none}
+  .plan-panel{max-height:none}
+  .col-right .tab-panel{max-height:460px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header class="top">
+<div class="dash">
+  <header class="bar">
     <div class="brand">
-      <svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Trader BotView">
+      <svg class="logo" width="34" height="34" viewBox="0 0 64 64" role="img" aria-label="Trader BotView">
         <defs>
           <linearGradient id="bvg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1a2434"/><stop offset="1" stop-color="#070a10"/></linearGradient>
           <linearGradient id="bvl" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#57e6c8"/><stop offset=".55" stop-color="#9fe8b4"/><stop offset="1" stop-color="#f0b90b"/></linearGradient>
@@ -309,200 +422,238 @@ footer b{color:var(--muted)}
       </svg>
       <div>
         <h1>Trader <span>BotView</span></h1>
-        <p>Analyse marché &amp; configuration de bot Binance</p>
+        <div class="sub">Analyse Binance · config de bot</div>
       </div>
     </div>
-    <div class="top-right">
-      <div class="status" role="status" aria-live="polite"><span class="dot" id="statusDot"></span><span id="statusText">Prêt</span></div>
-      <a class="gh" href="https://github.com/moonspiid/trader-botview" target="_blank" rel="noopener">GitHub ↗</a>
+
+    <div class="modes" role="tablist" aria-label="Mode de sélection">
+      <button type="button" data-mode="manual" class="on" role="tab" aria-selected="true">Manuel</button>
+      <button type="button" data-mode="auto" role="tab" aria-selected="false">Auto</button>
+    </div>
+
+    <div class="bar-right">
+      <span class="status"><i class="dot" id="statusDot"></i><span id="statusText">Prêt</span></span>
+      <span id="latency">—</span>
+      <span id="sourceHost">—</span>
+      <span id="lastUpdate">—</span>
+      <label class="auto"><input type="checkbox" id="autoRefresh" checked> 60 s</label>
+      <a class="ghlink" href="https://github.com/moonspiid/trader-botview" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </header>
 
-  <div class="app">
-    <aside class="side" aria-label="Panneau de contrôle">
-      <section class="card controls" aria-label="Paramètres d'analyse">
-    <form id="form" autocomplete="off" novalidate>
-          <div class="field grow">
-            <label class="lbl" for="symbol">Paire Spot</label>
-            <input id="symbol" list="symbolList" value="BTCUSDT" spellcheck="false" placeholder="BTCUSDT" aria-describedby="symbolHint">
-            <datalist id="symbolList"></datalist>
-          </div>
-          <div class="field">
-            <label class="lbl">Unité de temps</label>
-            <div class="seg" id="tfSeg" role="group" aria-label="Unité de temps">
-              <button type="button" data-tf="15m">15m</button>
-              <button type="button" data-tf="1h">1h</button>
-              <button type="button" data-tf="4h" class="on">4h</button>
-              <button type="button" data-tf="1d">1d</button>
+  <div class="grid">
+    <div class="col col-left">
+      <section class="panel" id="panelManual">
+        <div class="ph"><h2>Configuration</h2><span class="sub">mode manuel</span></div>
+        <div class="pb">
+          <form id="form" autocomplete="off" novalidate>
+            <div class="field">
+              <label class="lbl" for="symbol">Paire Spot</label>
+              <input id="symbol" list="symbolList" value="BTCUSDT" spellcheck="false" placeholder="BTCUSDT">
+              <datalist id="symbolList"></datalist>
+            </div>
+            <div class="field" style="margin-top:7px">
+              <label class="lbl">Unité de temps</label>
+              <div class="seg" id="tfSeg" role="group" aria-label="Unité de temps">
+                <button type="button" data-tf="15m">15m</button>
+                <button type="button" data-tf="1h">1h</button>
+                <button type="button" data-tf="4h" class="on">4h</button>
+                <button type="button" data-tf="1d">1d</button>
+              </div>
+            </div>
+            <div class="grid2" style="margin-top:7px">
+              <div class="field">
+                <label class="lbl" for="capital">Capital USDT</label>
+                <input id="capital" type="number" min="10" step="10" value="1000" inputmode="decimal">
+              </div>
+              <div class="field">
+                <label class="lbl" for="risk">Risque %</label>
+                <input id="risk" type="number" min="0.1" max="10" step="0.1" value="1" inputmode="decimal">
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="field">
+                <label class="lbl" for="fee">Frais %</label>
+                <input id="fee" type="number" min="0" max="0.5" step="0.01" value="0.1" inputmode="decimal">
+              </div>
+              <div class="field">
+                <label class="lbl" for="lev">Levier max</label>
+                <input id="lev" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
+              </div>
+            </div>
+            <button class="btn primary" id="btnAnalyze" type="submit">Analyser</button>
+          </form>
+          <div class="chips" id="chips" aria-label="Paires populaires"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panelAuto" hidden>
+        <div class="ph"><h2>Capital</h2><span class="sub">mode auto</span></div>
+        <div class="pb">
+          <div class="grid2">
+            <div class="field">
+              <label class="lbl" for="capitalAuto">Capital USDT</label>
+              <input id="capitalAuto" type="number" min="10" step="10" value="1000" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label class="lbl" for="riskAuto">Risque %</label>
+              <input id="riskAuto" type="number" min="0.1" max="10" step="0.1" value="1" inputmode="decimal">
             </div>
           </div>
-          <div class="field">
-            <label class="lbl" for="capital">Capital (USDT)</label>
-            <input id="capital" type="number" min="10" step="10" value="1000" inputmode="decimal">
+          <div class="grid2">
+            <div class="field">
+              <label class="lbl" for="feeAuto">Frais %</label>
+              <input id="feeAuto" type="number" min="0" max="0.5" step="0.01" value="0.1" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label class="lbl" for="levAuto">Levier max</label>
+              <input id="levAuto" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
+            </div>
           </div>
-          <div class="field">
-            <label class="lbl" for="risk">Risque / trade %</label>
-            <input id="risk" type="number" min="0.1" max="10" step="0.1" value="1" inputmode="decimal">
-          </div>
-          <div class="field">
-            <label class="lbl" for="fee">Frais / ordre %</label>
-            <input id="fee" type="number" min="0" max="0.5" step="0.01" value="0.1" inputmode="decimal">
-          </div>
-          <div class="field">
-            <label class="lbl" for="lev">Levier max</label>
-            <input id="lev" type="number" min="1" max="20" step="1" value="1" inputmode="numeric">
-          </div>
-          <div class="field action">
-            <label class="lbl" aria-hidden="true">&nbsp;</label>
-            <button class="btn primary" id="btnAnalyze" type="submit">Analyser</button>
-          </div>
-        </form>
-        <div class="chips" id="chips" aria-label="Paires populaires"></div>
-        <div class="meta">
-          <span>Source <b id="sourceHost">—</b></span>
-          <span>Maj <b id="lastUpdate">—</b></span>
-          <span>Latence <b id="latency">—</b></span>
-          <span class="auto"><label><input type="checkbox" id="autoRefresh" checked> Auto 60 s</label></span>
+          <button class="btn primary" id="btnScan" type="button">Scanner le marché</button>
+          <p class="hint" id="scanHint">8 paires × 1h et 4h, classées pour votre capital.</p>
         </div>
       </section>
 
-      <section class="card" aria-label="Marché">
-        <div class="card-head" style="margin-bottom:6px">
-          <div><h2>Marché</h2><p class="sub" id="mktSub">—</p></div>
+      <section class="panel" id="cardMarket">
+        <div class="ph"><h2>Marché</h2><span class="sub" id="mktSub">—</span></div>
+        <div class="pb">
+          <div class="mkt">
+            <div class="row"><span class="k">Dernier prix</span><b class="v" id="kPrice">—</b></div>
+            <div class="row" id="rowChange"><span class="k">Variation 24 h</span><b class="v" id="kChange">—</b></div>
+            <div class="row"><span class="k">Volume 24 h</span><b class="v" id="kVol">—</b></div>
+            <div class="row"><span class="k">Volatilité ATR</span><b class="v" id="kAtr">—</b></div>
+            <div class="row"><span class="k">Spread</span><b class="v" id="kSpread">—</b></div>
+            <div class="row"><span class="k">Tendance ADX</span><b class="v" id="kAdx">—</b></div>
+          </div>
+          <div class="mkt-sub" id="mktSub2">—</div>
         </div>
-        <div class="mkt">
-          <div class="row"><span class="k">Dernier prix</span><b class="v" id="kPrice">—</b></div>
-          <div class="row" id="rowChange"><span class="k">Variation 24 h</span><b class="v" id="kChange">—</b></div>
-          <div class="row"><span class="k">Volume 24 h</span><b class="v" id="kVol">—</b></div>
-          <div class="row"><span class="k">Volatilité ATR</span><b class="v" id="kAtr">—</b></div>
-          <div class="row"><span class="k">Spread</span><b class="v" id="kSpread">—</b></div>
-          <div class="row"><span class="k">Tendance ADX</span><b class="v" id="kAdx">—</b></div>
-        </div>
-        <div class="mkt-sub" id="mktSub2">—</div>
       </section>
 
-    </aside>
+      <section class="panel grow" id="cardSuggest" hidden>
+        <div class="ph"><h2>Suggestions</h2><span class="sub" id="suggestSub">—</span></div>
+        <div class="pb"><div class="suggest" id="suggestList"></div></div>
+      </section>
 
-    <main class="main">
-
-  <section class="card chart-card" aria-label="Graphique">
-    <div class="card-head">
-      <div>
-        <h2 id="chartTitle">BTCUSDT · 4h</h2>
-        <p class="sub" id="chartSub">En attente d'analyse</p>
-      </div>
-      <div class="chart-toggles">
-        <label class="tgl"><input type="checkbox" id="tglEma" checked> EMA</label>
-        <label class="tgl"><input type="checkbox" id="tglBb" checked> Bollinger</label>
-      </div>
+      <section class="panel grow" id="cardTip">
+        <div class="ph"><h2>Repères</h2><span class="sub">lecture rapide</span></div>
+        <div class="pb">
+          <div class="tips">
+            <div><b>Range</b> → grille : on encaisse les allers-retours dans une plage.</div>
+            <div><b>Tendance baissière</b> → DCA prudent, budget plafonné à 25 %.</div>
+            <div><b>Tendance haussière</b> → suivi de tendance, stop à 2 ATR.</div>
+            <div><b>Spread large ou liquidité faible</b> → attendre.</div>
+            <div style="color:var(--acc)">Le mode Auto compare 8 paires et propose les meilleures.</div>
+          </div>
+        </div>
+      </section>
     </div>
-    <div class="chart-wrap"><canvas id="chart"></canvas><div class="tip" id="chartTip"></div></div>
-    <div class="legend" id="legend">
-      <span><i style="background:#57e6c8"></i>EMA 20 <b id="lgEma20">—</b></span>
-      <span><i style="background:#f0b90b"></i>EMA 50 <b id="lgEma50">—</b></span>
-      <span><i style="background:#a78bfa"></i>EMA 200 <b id="lgEma200">—</b></span>
-      <span><i style="background:#3b4a5f"></i>BB 20/2 <b id="lgBb">—</b></span>
+
+    <div class="col col-mid">
+      <section class="panel chart-panel">
+        <div class="ph">
+          <div><h2 id="chartTitle">—</h2><span class="sub" id="chartSub">—</span></div>
+          <div class="toggles" style="display:flex;gap:10px;font-size:10px;color:var(--muted)">
+            <label><input type="checkbox" id="tglEma" checked> EMA</label>
+            <label><input type="checkbox" id="tglBb" checked> Bollinger</label>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart"></canvas><div class="tip" id="chartTip"></div></div>
+        <div class="legend">
+          <span class="lg ema20">EMA 20 <b id="lgEma20">—</b></span>
+          <span class="lg ema50">EMA 50 <b id="lgEma50">—</b></span>
+          <span class="lg ema200">EMA 200 <b id="lgEma200">—</b></span>
+          <span class="lg bb">BB 20/2 <b id="lgBb">—</b></span>
+        </div>
+      </section>
+
+      <section class="panel plan-panel">
+        <div class="ph">
+          <div><h2><span class="badge" id="planBadge">—</span> <span id="planTitle">Plan recommandé</span></h2><span class="sub" id="planSub">—</span></div>
+          <span class="badge" id="regimeBadge">—</span>
+        </div>
+        <div class="pb">
+          <p class="regime-desc" id="regimeDesc">Lancez une analyse pour obtenir une lecture du marché.</p>
+          <ul class="why" id="whyList"></ul>
+          <dl class="metrics" id="metrics"></dl>
+          <div class="exit-actions" id="planExit"></div>
+          <div class="warns" id="warns"></div>
+          <details class="more">
+            <summary>Indicateurs, contrôles et confiance</summary>
+            <div class="bias">
+              <div class="bias-head"><span>Biais directionnel</span><b id="biasLabel">—</b></div>
+              <div class="bias-track"><div class="bias-zero"></div><div class="bias-fill" id="biasFill"></div></div>
+              <div class="bias-scale"><span>-100</span><span>0</span><span>+100</span></div>
+            </div>
+            <div class="conf">
+              <div class="conf-head"><span>Confiance du setup</span><b id="confVal">—</b></div>
+              <div class="conf-track"><div class="conf-fill" id="confFill"></div></div>
+            </div>
+            <table class="tbl" id="indTable">
+              <thead><tr><th>Indicateur</th><th>Valeur</th><th>Lecture</th></tr></thead>
+              <tbody><tr><td colspan="3" class="empty">Aucune donnée.</td></tr></tbody>
+            </table>
+            <div class="checks" id="checks"></div>
+          </details>
+        </div>
+      </section>
     </div>
-  </section>
 
-  <div class="cols">
-    <section class="card" aria-label="Diagnostic">
-      <div class="card-head">
-        <div><h2>Diagnostic</h2><p class="sub">Régime de marché et lecture détaillée</p></div>
-        <span class="badge" id="regimeBadge">—</span>
-      </div>
-      <p class="regime-desc" id="regimeDesc">Lancez une analyse pour obtenir une lecture du marché.</p>
-      <div class="bias">
-        <div class="bias-head"><span>Biais directionnel</span><b id="biasLabel">—</b></div>
-        <div class="bias-track"><div class="bias-zero"></div><div class="bias-fill" id="biasFill"></div></div>
-        <div class="bias-scale"><span>-100</span><span>0</span><span>+100</span></div>
-      </div>
-      <div class="conf">
-        <div class="conf-head"><span>Confiance du setup</span><b id="confVal">—</b></div>
-        <div class="conf-track"><div class="conf-fill" id="confFill"></div></div>
-      </div>
-      <table class="tbl" id="indTable">
-        <thead><tr><th>Indicateur</th><th>Valeur</th><th>Lecture</th></tr></thead>
-        <tbody><tr><td colspan="3" class="empty">Aucune donnée.</td></tr></tbody>
-      </table>
-    </section>
-
-    <section class="card plan" aria-label="Plan recommandé">
-      <div class="card-head">
-        <div><h2>Plan recommandé</h2><p class="sub" id="planSub">—</p></div>
-      </div>
-      <div class="plan-head"><span class="badge accent" id="planBadge">—</span><h3 id="planTitle">—</h3></div>
-      <ul class="why" id="whyList"><li class="empty">En attente d'analyse.</li></ul>
-      <dl class="metrics" id="metrics"></dl>
-      <div class="exit-actions" id="planExit"></div>
-      <div class="warns" id="warns"></div>
-      <div class="checks" id="checks"></div>
-    </section>
+    <div class="col col-right">
+      <section class="panel">
+        <div class="ph">
+          <div><h2>Configurations</h2><span class="sub">copier-coller vers Binance</span></div>
+          <div class="head-actions" style="display:flex;gap:5px">
+            <button class="btn ghost" id="btnCopyAll" type="button">Copier tout</button>
+            <button class="btn ghost" id="btnDlJson" type="button">.json</button>
+            <button class="btn ghost" id="btnDlTxt" type="button">.txt</button>
+          </div>
+        </div>
+        <div class="tabs" id="tabs" role="tablist">
+          <button class="on" data-tab="summary" role="tab">Résumé</button>
+          <button data-tab="json" role="tab">JSON</button>
+          <button data-tab="exit" role="tab">SL / TP</button>
+          <button data-tab="api" role="tab">Ordre</button>
+          <button data-tab="curl" role="tab">cURL</button>
+          <button data-tab="checklist" role="tab">Sécurité</button>
+        </div>
+        <div class="tab-panels">
+          <div class="tab-panel on" data-panel="summary">
+            <div class="pre-head"><span>Rapport texte</span><button class="copy" data-copy="summary" type="button">Copier</button></div>
+            <pre id="outSummary">Lancez une analyse pour générer le rapport.</pre>
+          </div>
+          <div class="tab-panel" data-panel="json">
+            <div class="pre-head"><span>Configuration JSON</span><button class="copy" data-copy="json" type="button">Copier</button></div>
+            <pre id="outJson">—</pre>
+          </div>
+          <div class="tab-panel" data-panel="exit">
+            <div class="pre-head"><span>Niveaux copiables</span><button class="copy" data-copy="exit" type="button">Copier le résumé</button></div>
+            <div class="exit-grid" id="exitGrid"></div>
+            <div class="pre-head"><span>Texte SL / TP</span><button class="copy" data-copy="exit" type="button">Copier</button></div>
+            <pre id="outExit">—</pre>
+            <div class="pre-head" style="margin-top:8px"><span>Ordre de sortie (JSON)</span><button class="copy" data-copy="exitJson" type="button">Copier</button></div>
+            <pre id="outExitJson">—</pre>
+          </div>
+          <div class="tab-panel" data-panel="api">
+            <div class="pre-head"><span>Paramètres d'ordre Binance</span><button class="copy" data-copy="api" type="button">Copier</button></div>
+            <pre id="outApi">—</pre>
+          </div>
+          <div class="tab-panel" data-panel="curl">
+            <div class="pre-head"><span>cURL / Python (testnet)</span><button class="copy" data-copy="curl" type="button">Copier</button></div>
+            <pre id="outCurl">—</pre>
+          </div>
+          <div class="tab-panel" data-panel="checklist">
+            <div class="pre-head"><span>Checklist de sécurisation</span><button class="copy" data-copy="checklist" type="button">Copier</button></div>
+            <pre id="outChecklist">—</pre>
+          </div>
+        </div>
+        <div class="disc-line">Outil éducatif · aucun ordre envoyé · aucune clé API demandée</div>
+      </section>
+    </div>
   </div>
-
-  <section class="card outputs" aria-label="Configurations à copier">
-    <div class="card-head">
-      <div><h2>Configurations prêtes à copier</h2><p class="sub">Collez directement dans votre bot, votre script ou votre exchange</p></div>
-      <div class="head-actions">
-        <button class="btn ghost" id="btnCopyAll" type="button">Copier tout</button>
-        <button class="btn ghost" id="btnDlJson" type="button">.json</button>
-        <button class="btn ghost" id="btnDlTxt" type="button">.txt</button>
-      </div>
-    </div>
-    <div class="tabs" id="tabs" role="tablist">
-      <button class="on" data-tab="summary" role="tab">Résumé</button>
-      <button data-tab="json" role="tab">JSON bot</button>
-      <button data-tab="api" role="tab">Paramètres Binance</button>
-      <button data-tab="exit" role="tab">SL / TP</button>
-      <button data-tab="curl" role="tab">cURL / API</button>
-      <button data-tab="checklist" role="tab">Checklist sécurité</button>
-    </div>
-    <div class="tab-panels">
-      <div class="tab-panel on" data-panel="summary">
-        <div class="pre-head"><span>Rapport texte</span><button class="copy" data-copy="summary" type="button">Copier</button></div>
-        <pre id="outSummary">Lancez une analyse pour générer le rapport.</pre>
-      </div>
-      <div class="tab-panel" data-panel="json">
-        <div class="pre-head"><span>Configuration JSON</span><button class="copy" data-copy="json" type="button">Copier</button></div>
-        <pre id="outJson">—</pre>
-      </div>
-      <div class="tab-panel" data-panel="api">
-        <div class="pre-head"><span>Paramètres d'ordre Binance</span><button class="copy" data-copy="api" type="button">Copier</button></div>
-        <pre id="outApi">—</pre>
-      </div>
-      <div class="tab-panel" data-panel="exit">
-        <div class="pre-head"><span>Niveaux copiables</span><button class="copy" data-copy="exit" type="button">Copier le résumé</button></div>
-        <div class="exit-grid" id="exitGrid"></div>
-        <div class="pre-head" style="margin-top:14px"><span>Texte SL / TP</span><button class="copy" data-copy="exit" type="button">Copier</button></div>
-        <pre id="outExit">—</pre>
-        <div class="pre-head" style="margin-top:14px"><span>Ordre de sortie (JSON Binance)</span><button class="copy" data-copy="exitJson" type="button">Copier</button></div>
-        <pre id="outExitJson">—</pre>
-      </div>
-      <div class="tab-panel" data-panel="curl">
-        <div class="pre-head"><span>Exemples cURL (données publiques + ordre signé)</span><button class="copy" data-copy="curl" type="button">Copier</button></div>
-        <pre id="outCurl">—</pre>
-      </div>
-      <div class="tab-panel" data-panel="checklist">
-        <div class="pre-head"><span>Checklist de sécurisation</span><button class="copy" data-copy="checklist" type="button">Copier</button></div>
-        <pre id="outChecklist">—</pre>
-      </div>
-    </div>
-  </section>
-    </main>
-  </div>
-
-  <footer>
-    <div class="disc">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" stroke-width="2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-      <div><b>Outil éducatif — pas un conseil financier.</b> Aucune clé API n'est demandée, aucun ordre n'est envoyé. Les performances passées ne préjugent pas des performances futures. Un bot peut perdre tout ou partie de votre capital : ne tradez qu'avec de l'argent que vous pouvez perdre.</div>
-    </div>
-    <div class="foot-grid">
-      <span>Données publiques Binance (klines, ticker, carnet). Calculs réalisés dans votre navigateur, rien n'est envoyé à un serveur tiers.</span>
-      <span>Trader BotView · MIT · <a href="https://github.com/moonspiid/trader-botview" target="_blank" rel="noopener">code source</a></span>
-    </div>
-  </footer>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 'use strict';
 
@@ -586,7 +737,8 @@ const state = {
   tf: localStorage.getItem('bv.tf') || '4h',
   candles: null, ticker: null, depth: null, info: null, funding: null, ind: null,
   analysis: null, rec: null, outputs: null,
-  lastFetch: 0, busy: false, timer: null, geom: null
+  lastFetch: 0, busy: false, timer: null, geom: null,
+  mode: 'manual', candidates: [], scanning: false
 };
 
 const HOSTS = ['https://api.binance.com', 'https://data-api.binance.vision', 'https://api-gcp.binance.com', 'https://api4.binance.com'];
@@ -785,8 +937,8 @@ function computeIndicators(c) {
 const VOL_LABEL = v => v < 0.5 ? 'très faible' : v < 1 ? 'faible' : v < 2 ? 'normale' : v < 3.5 ? 'élevée' : 'extrême';
 const LIQ_LABEL = q => q > 2e8 ? 'excellente' : q > 5e7 ? 'très bonne' : q > 1e7 ? 'correcte' : q > 2e6 ? 'faible' : 'insuffisante';
 
-function buildAnalysis() {
-  const c = state.candles, ind = state.ind, tk = state.ticker, dp = state.depth, info = state.info;
+function buildAnalysis(ctx = state) {
+  const c = ctx.candles, ind = ctx.ind, tk = ctx.ticker, dp = ctx.depth, info = ctx.info;
   const last = c[c.length - 1];
   const price = last.c;
   const e20 = lastVal(ind.e20), e50 = lastVal(ind.e50), e200 = lastVal(ind.e200);
@@ -840,14 +992,14 @@ function buildAnalysis() {
   conf = clamp(Math.round(conf), 5, 95);
 
   return {
-    symbol: info.s, base: info.b, quote: info.q, tf: state.tf, candles: c,
+    symbol: info.s, base: info.b, quote: info.q, tf: ctx.tf, candles: c,
     price, changePct, high24: Number(tk.highPrice), low24: Number(tk.lowPrice), quoteVol,
     bid, ask, spreadPct, imbalance,
     e20, e50, e200, rsi: rsiV, atr: atrV, atrPct, macdLine, macdSig, macdHist,
     bbUp, bbLo, bbMid, bbW, adx: adxV, plusDI: ind.adx.plusDI, minusDI: ind.adx.minusDI,
     volRatio: ind.volRatio, regime, regimeLabel: REG[0], regimeDesc: REG[1],
     bias, conf, volLabel: VOL_LABEL(atrPct), liqLabel: LIQ_LABEL(quoteVol),
-    funding: state.funding, minN: info.minN, minQ: info.minQ, stepStr: info.stepStr, tickStr: info.tickStr,
+    funding: ctx.funding, minN: info.minN, minQ: info.minQ, stepStr: info.stepStr, tickStr: info.tickStr,
     fee: num($('#fee').value, 0.1)
   };
 }
@@ -1767,9 +1919,13 @@ function infoFromSymbol(s) {
     minQ: Number(lf.minQty) || 0, minN: Number(nf.minNotional) || 5
   };
 }
-async function analyze(silent) {
+async function analyze(silent, symOverride, tfOverride) {
   if (state.busy) return;
-  const sym = normalizeSymbol($('#symbol').value) || state.symbol;
+  if (tfOverride && tfOverride !== state.tf) {
+    state.tf = tfOverride;
+    $$('#tfSeg button').forEach(x => x.classList.toggle('on', x.dataset.tf === state.tf));
+  }
+  const sym = normalizeSymbol(symOverride || $('#symbol').value) || state.symbol;
   if (!sym) { toast('Entrez une paire, ex. BTCUSDT'); return; }
   state.symbol = sym;
   localStorage.setItem('bv.symbol', sym);
@@ -1802,6 +1958,7 @@ async function analyze(silent) {
     $('#latency').textContent = Math.round(performance.now() - t0) + ' ms';
     setStatus('ok', silent ? 'Actualisé' : 'Données à jour');
     renderChips();
+    if (state.candidates && state.candidates.length) renderSuggestions();
   } catch (e) {
     console.error(e);
     setStatus('err', 'Erreur');
@@ -1809,6 +1966,116 @@ async function analyze(silent) {
   } finally {
     state.busy = false; $('#btnAnalyze').disabled = false;
   }
+}
+
+
+/* ============================== modes & scan ============================== */
+const SCAN_PAIRS = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'XRPUSDT', 'DOGEUSDT', 'ADAUSDT', 'LINKUSDT'];
+const SCAN_TFS = ['1h', '4h'];
+
+function setMode(mode) {
+  state.mode = mode;
+  $$('.modes button').forEach(b => {
+    const on = b.dataset.mode === mode;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  const auto = mode === 'auto';
+  $('#panelManual').hidden = auto;
+  $('#panelAuto').hidden = !auto;
+  $('#cardTip').hidden = auto;
+  $('#cardSuggest').hidden = !auto;
+  if (auto && !state.candidates.length) scanMarket();
+}
+
+function scoreCandidate(a, rec) {
+  if (rec.key === 'wait') return Math.round(clamp(a.conf * 0.35, 0, 40));
+  const qSpread = a.spreadPct < 0.02 ? 1 : a.spreadPct < 0.06 ? 0.75 : a.spreadPct < 0.15 ? 0.35 : 0;
+  const qLiq = a.quoteVol > 2e8 ? 1 : a.quoteVol > 5e7 ? 0.8 : a.quoteVol > 1e7 ? 0.55 : 0.2;
+  const qFit = rec.grid ? 1 : rec.dca ? 0.9 : 0.85;
+  const edge = rec.grid ? clamp(rec.grid.profitPerGrid / 3, 0, 1) : rec.dca ? clamp(rec.dca.tpPct / 3, 0, 1) : 0.6;
+  const q = qSpread * 0.35 + qLiq * 0.3 + qFit * 0.2 + edge * 0.15;
+  return Math.round(clamp(a.conf * 0.55 + q * 45, 0, 99));
+}
+
+async function scanMarket() {
+  if (state.scanning || state.busy) return;
+  state.scanning = true;
+  const cap = num($('#capitalAuto').value, 1000);
+  const btn = $('#btnScan');
+  if (btn) btn.disabled = true;
+  $('#suggestList').innerHTML = '<p class="hint">Analyse de ' + (SCAN_PAIRS.length * SCAN_TFS.length) + ' combinaisons…</p>';
+  $('#suggestSub').textContent = 'scan en cours';
+  $('#scanHint').textContent = 'Lecture des bougies…';
+  setStatus('load', 'Scan du marché…');
+  try {
+    await loadExchange();
+    const jobs = [];
+    SCAN_PAIRS.forEach(sym => SCAN_TFS.forEach(tf => jobs.push({ sym, tf })));
+    const out = [];
+    let done = 0;
+    const run = async (j) => {
+      try {
+        const info = state.symbols && state.symbols.get(j.sym);
+        if (!info) return;
+        const [kl, tk] = await Promise.all([
+          fetchJSON('/api/v3/klines?symbol=' + j.sym + '&interval=' + j.tf + '&limit=300'),
+          fetchJSON('/api/v3/ticker/24hr?symbol=' + j.sym)
+        ]);
+        if (!Array.isArray(kl) || !kl.length) return;
+        const candles = kl.map(k => ({ t: k[0], o: +k[1], h: +k[2], l: +k[3], c: +k[4], v: +k[5], qv: +k[7] }));
+        const bid = Number(tk.bidPrice), ask = Number(tk.askPrice);
+        const ctx = {
+          info, ticker: tk, candles, ind: computeIndicators(candles), tf: j.tf, funding: null,
+          depth: (bid && ask) ? { bids: [[bid, '1']], asks: [[ask, '1']] } : null
+        };
+        const a = buildAnalysis(ctx);
+        const rec = buildRecommendation(a);
+        out.push({ sym: j.sym, tf: j.tf, key: rec.key, name: rec.name, score: scoreCandidate(a, rec), change: a.changePct, price: a.price });
+      } catch (e) { /* paire ignorée */ }
+      finally {
+        done++;
+        $('#scanHint').textContent = done + '/' + jobs.length + ' combinaisons analysées…';
+      }
+    };
+    let i = 0;
+    await Promise.all(Array.from({ length: 4 }, async () => { while (i < jobs.length) await run(jobs[i++]); }));
+    out.sort((x, y) => y.score - x.score);
+    state.candidates = out;
+    renderSuggestions();
+    $('#scanHint').textContent = out.length + ' opportunités classées pour ' + dec(cap, 0) + ' USDT.';
+    if (out[0]) await analyze(false, out[0].sym, out[0].tf);
+    else setStatus('err', 'Aucune donnée');
+  } catch (e) {
+    console.error(e);
+    setStatus('err', 'Scan impossible');
+    $('#suggestList').innerHTML = '<p class="hint">Scan impossible : ' + (e.message || 'réseau indisponible') + '</p>';
+  } finally {
+    state.scanning = false;
+    if (btn) btn.disabled = false;
+  }
+}
+
+let scanTimer = null;
+function scheduleScan() {
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(() => { if (state.mode === 'auto' && !state.scanning && !state.busy) scanMarket(); }, 900);
+}
+function renderSuggestions() {
+  const box = $('#suggestList');
+  if (!box) return;
+  const list = state.candidates || [];
+  $('#suggestSub').textContent = list.length ? 'top ' + Math.min(6, list.length) : 'aucune';
+  box.innerHTML = list.slice(0, 6).map(c => {
+    const on = c.sym === state.symbol && c.tf === state.tf;
+    return '<button type="button" class="sg ' + c.key + (on ? ' on' : '') + '" data-sym="' + c.sym + '" data-tf="' + c.tf + '">' +
+      '<span class="sym">' + c.sym.replace('USDT', '') + '</span>' +
+      '<span class="tf">' + c.tf + ' · ' + signed(c.change, 2) + ' %</span>' +
+      '<span class="sc">' + c.score + '<small>/100</small></span>' +
+      '<span class="strat">' + c.name + '</span>' +
+      '</button>';
+  }).join('') || '<p class="hint">Aucune opportunité détectée. Modifiez le capital et relancez le scan.</p>';
+  $$('#suggestList .sg').forEach(b => b.addEventListener('click', () => analyze(false, b.dataset.sym, b.dataset.tf)));
 }
 
 /* ============================== événements ============================== */
@@ -1833,6 +2100,13 @@ function flash(btn, ok) {
 }
 function bind() {
   $('#form').addEventListener('submit', e => { e.preventDefault(); analyze(); });
+  $$('.modes button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $('#btnScan').addEventListener('click', scanMarket);
+  $('#capitalAuto').addEventListener('input', scheduleScan);
+  [['capital', 'capitalAuto'], ['risk', 'riskAuto'], ['fee', 'feeAuto'], ['lev', 'levAuto']].forEach(([m, a]) => {
+    $('#' + m).addEventListener('input', () => { $('#' + a).value = $('#' + m).value; });
+    $('#' + a).addEventListener('input', () => { $('#' + m).value = $('#' + a).value; recompute(); });
+  });
   $$('#tfSeg button').forEach(b => b.addEventListener('click', () => {
     state.tf = b.dataset.tf;
     $$('#tfSeg button').forEach(x => x.classList.toggle('on', x === b));
@@ -1900,6 +2174,7 @@ function bind() {
   });
   cv.addEventListener('mouseleave', () => { $('#chartTip').style.display = 'none'; drawChart(); });
   window.addEventListener('resize', () => drawChart());
+  if (window.ResizeObserver) new ResizeObserver(() => drawChart()).observe($('.chart-wrap'));
 }
 function scheduleAuto() {
   clearInterval(state.timer); state.timer = null;
