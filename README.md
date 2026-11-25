@@ -29,6 +29,7 @@
 - [Pourquoi](#pourquoi)
 - [Fonctionnalités](#fonctionnalités)
 - [Démarrage rapide](#démarrage-rapide)
+- [Installer sur mobile](#installer-sur-mobile)
 - [Comment ça marche](#comment-ça-marche)
 - [Bon à savoir](#bon-à-savoir)
 - [Soutenir le projet](#soutenir-le-projet)
@@ -57,6 +58,8 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
 - **Niveaux SL / TP copiables** — entrée, stop, TP1, TP2 et quantité, chacun avec son bouton de copie, plus un ordre de sortie prêt à coller (OCO en spot, `STOP_MARKET` + `TAKE_PROFIT_MARKET` en futures, `TAKE_PROFIT_LIMIT` pour le DCA).
 - **Cinq blocs de sortie** : rapport texte, JSON de configuration complet (avec les niveaux de grille), paramètres d'ordre Binance, cURL et Python signés sur le testnet, checklist de sécurisation.
 - **Vérifications de faisabilité** — `tickSize`, `stepSize`, `minQty`, `minNotional`, profit par grille supérieur aux frais, liquidité 24 h, funding.
+- **Application installable** — bouton **Installer** dans l'en-tête : la page s'ajoute à l'écran d'accueil (Android, iOS, ordinateur), se lance en plein écran sans barre d'adresse et fonctionne hors ligne grâce à un service worker qui garde la page en cache.
+- **Mise en page mobile** — sous 760 px, l'interface passe en une colonne : en-tête sur deux lignes, formulaire sur deux colonnes, graphique à 220 px, et grille de paramètres à deux colonnes avec des boutons **Copier** agrandis pour le pouce.
 - **Zéro dépendance** — pas de framework, pas de build, pas de requête vers un serveur tiers : le graphique est dessiné en canvas et tout le calcul se fait dans la page.
 
 ## Démarrage rapide
@@ -67,6 +70,17 @@ Trader BotView fait le calcul à partir du marché réel : volatilité, tendance
 4. Lire le **Diagnostic** et le **Plan recommandé**, puis descendre sur **Configurations prêtes à copier**.
 5. Copier les paramètres un par un dans la grille sous le graphique (bornes, grilles, montant, marge, TP/SL), ou l'onglet **SL / TP** pour les niveaux et l'ordre de sortie complet.
 6. Tester sur [testnet.binance.vision](https://testnet.binance.vision) avant tout argent réel.
+
+## Installer sur mobile
+
+1. Ouvrir [la page](https://moonspiid.github.io/trader-botview/) dans le navigateur du téléphone.
+2. Appuyer sur **⤓ Installer** en haut à droite.
+3. Suivre les trois étapes affichées :
+   - **Android / ordinateur** : le menu du navigateur propose *Installer l'application* ; sur ordinateur, l'icône d'installation est dans la barre d'adresse.
+   - **iPhone / iPad** : bouton **Partager**, puis **Sur l'écran d'accueil**, puis **Ajouter**.
+4. L'icône BotView apparaît sur l'écran d'accueil. Elle s'ouvre en plein écran et recharge la page depuis le cache si le réseau manque (les prix, eux, exigent une connexion).
+
+Le raccourci `?mode=auto` ouvre directement le scanner automatique, `?mode=manual` le mode manuel.
 
 ### En local
 

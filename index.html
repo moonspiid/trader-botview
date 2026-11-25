@@ -6,6 +6,13 @@
 <title>Trader BotView — Analyse marché & configuration de bot Binance</title>
 <meta name="description" content="Tableau de bord plein écran : analyse Binance en direct, mode manuel ou scan automatique adapté à votre capital, et configurations de bot prêtes à copier (grid, DCA, tendance) avec SL/TP.">
 <meta name="theme-color" content="#06080c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BotView">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <meta property="og:title" content="Trader BotView">
 <meta property="og:description" content="Tableau de bord Binance plein écran : mode manuel ou auto, configurations de bot prêtes à copier.">
 <meta property="og:type" content="website">
@@ -381,7 +388,45 @@ body{overflow:hidden}
 .col-right .exit-grid{grid-template-columns:1fr;gap:5px;margin-bottom:8px}
 .col-right .val-chip{padding:5px 8px}
 .col-right .val-chip .num{font-size:11px}
+.installe{display:inline-flex;align-items:center;gap:5px;background:var(--acc);color:#0b0e13;border:1px solid var(--acc);border-radius:7px;padding:4px 11px;font-family:var(--sans);font-size:11px;font-weight:700;cursor:pointer;line-height:1.5}
+.installe:hover{filter:brightness(1.08)}
+.installe::before{content:"⤓";font-size:12px;line-height:1}
+.sheet{position:fixed;inset:0;z-index:90;background:rgba(3,5,8,.72);display:flex;align-items:flex-end;justify-content:center}
+.sheet .box{width:100%;max-width:460px;background:#0c1119;border:1px solid var(--line2);border-radius:14px 14px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet h3{font-size:14px;margin-bottom:10px}
+.sheet .steps{margin:0 0 10px;padding-left:18px;font-size:11.5px;line-height:1.6;color:var(--muted);display:grid;gap:5px}
+.sheet .steps b{color:var(--txt)}
+.sheet .btn.primary{width:100%;margin-top:4px}
 .disc-line{font-size:8.5px;color:#3f4d61;text-align:center;padding:5px 2px 0;line-height:1.4;flex:0 0 auto}
+@media (max-width:760px){
+  .dash{padding:6px 8px 8px;gap:7px}
+  .bar{flex-wrap:wrap;gap:6px;min-height:34px}
+  .bar .brand .logo{width:28px;height:28px}
+  .bar h1{font-size:14px}
+  .bar .brand .sub{display:none}
+  .modes{margin-left:auto;padding:2px}
+  .modes button{padding:4px 12px;font-size:11px}
+  .bar-right{width:100%;justify-content:flex-end;gap:7px;font-size:9px}
+  .bar-right #sourceHost,.bar-right #lastUpdate{display:none}
+  .bar-right .auto{font-size:9.5px}
+  .installe{padding:4px 10px;font-size:10.5px}
+  .grid{gap:8px}
+  .chart-panel .chart-wrap{height:220px}
+  .chart-panel .legend{display:none}
+  #cardTip{display:none!important}
+  .plan-panel .cfg{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .plan-panel .cell{padding:7px 9px}
+  .plan-panel .cell .k{font-size:8.5px}
+  .plan-panel .cell .v b{font-size:12.5px}
+  .plan-panel .cell .copy-mini{padding:6px 10px;font-size:10px;border-radius:6px}
+  .panel>.pb{padding:9px 10px}
+  .col-right .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .col-right .tabs::-webkit-scrollbar{display:none}
+  .col-right .tabs button{white-space:nowrap;padding:6px 10px;font-size:10px}
+  .col-right .tab-panel{max-height:none}
+  .col-right pre{font-size:10px;min-height:260px}
+  .head-actions .btn.ghost{padding:6px 9px;font-size:10.5px}
+}
 @media (max-width:1120px){
   .plan-panel .cfg{grid-template-columns:repeat(2,minmax(0,1fr))}
   .plan-panel .cell{padding:6px 8px}
@@ -449,6 +494,7 @@ body{overflow:hidden}
       <span id="sourceHost">—</span>
       <span id="lastUpdate">—</span>
       <label class="auto"><input type="checkbox" id="autoRefresh" checked> 60 s</label>
+      <button class="installe" id="btnInstalle" type="button" hidden>Installer</button>
       <a class="ghlink" href="https://github.com/moonspiid/trader-botview" target="_blank" rel="noopener">GitHub ↗</a>
     </div>
   </header>
@@ -661,6 +707,13 @@ body{overflow:hidden}
         <div class="disc-line">Outil éducatif · aucun ordre envoyé · aucune clé API demandée</div>
       </section>
     </div>
+  </div>
+</div>
+<div class="sheet" id="installeSheet" hidden>
+  <div class="box" role="dialog" aria-modal="true" aria-labelledby="installeTitle">
+    <h3 id="installeTitle">Installer Trader BotView</h3>
+    <div id="installeBody"></div>
+    <button class="btn primary" id="installeClose" type="button">Compris</button>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -2221,6 +2274,61 @@ function scheduleAuto() {
   }
 }
 
+
+/* ============================== PWA ============================== */
+let installePrompt = null;
+function standalone() {
+  try {
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+  } catch (e) { /* navigateur sans display-mode */ }
+  return window.navigator.standalone === true;
+}
+function showInstalle() {
+  const b = $('#btnInstalle');
+  if (b && !standalone()) b.hidden = false;
+}
+function installeHelp() {
+  const ua = navigator.userAgent;
+  const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const steps = ios
+    ? ['Appuyez sur le bouton <b>Partager</b> (carré avec une flèche) dans Safari.', 'Faites défiler et choisissez <b>Sur l\'écran d\'accueil</b>.', 'Validez avec <b>Ajouter</b> : l\'icône BotView apparaît sur l\'écran.']
+    : ['Ouvrez le menu du navigateur (les trois points verticaux sur Android) ou l\'icône d\'installation dans la barre d\'adresse.', 'Choisissez <b>Installer l\'application</b> ou <b>Ajouter à l\'écran d\'accueil</b>.', 'L\'application s\'ouvre en plein écran, sans barre d\'adresse.'];
+  $('#installeBody').innerHTML = '<ol class="steps">' + steps.map(x => '<li>' + x + '</li>').join('') + '</ol>' +
+    '<p class="hint">Installée, la page se lance comme une application et garde le cache hors ligne.</p>';
+  $('#installeSheet').hidden = false;
+}
+function bindInstalle() {
+  const btn = $('#btnInstalle');
+  if (!btn) return;
+  if (standalone()) { btn.hidden = true; return; }
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installePrompt = e;
+    showInstalle();
+  });
+  window.addEventListener('appinstalled', () => {
+    installePrompt = null;
+    btn.hidden = true;
+    toast('Application installée');
+  });
+  btn.addEventListener('click', async () => {
+    if (installePrompt) {
+      installePrompt.prompt();
+      const choice = await installePrompt.userChoice;
+      installePrompt = null;
+      if (choice && choice.outcome === 'accepted') btn.hidden = true;
+      return;
+    }
+    installeHelp();
+  });
+  $('#installeClose').addEventListener('click', () => { $('#installeSheet').hidden = true; });
+  $('#installeSheet').addEventListener('click', e => { if (e.target.id === 'installeSheet') $('#installeSheet').hidden = true; });
+  setTimeout(showInstalle, 1200);
+}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => null); });
+}
+
 /* ============================== init ============================== */
 function init() {
   const saved = k => localStorage.getItem('bv.' + k);
@@ -2229,7 +2337,10 @@ function init() {
   $$('#tfSeg button').forEach(b => b.classList.toggle('on', b.dataset.tf === state.tf));
   renderChips();
   bind();
+  bindInstalle();
   scheduleAuto();
+  const qm = new URLSearchParams(location.search).get('mode');
+  if (qm === 'auto' || qm === 'manual') setMode(qm);
   setStatus('load', 'Chargement…');
   loadExchange()
     .then(() => analyze())
