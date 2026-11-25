@@ -319,7 +319,7 @@ const I18N = {
     errFunds: 'fonds insuffisants : {n} $ minimum pour 2 grilles à {lev}×',
     spotHint: 'API Futures bloquée : filtres spot utilisés, vérifiez la quantité minimale avant de lancer le bot',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
-    gridsCap: 'plafonné à {n} grilles par le capital',
+    gridsCap: '{n} grilles max (capital)', levBoost: 'levier porté à {n}×', feeNote: 'frais {n} $',
     newsTitle: 'Actualités du marché', newsAll: 'Tout voir ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'Aucune actualité disponible.', newsError: 'Actualités indisponibles', retry: 'Réessayer',
     installTitle: 'Installer Trader BotView', ok: 'Compris',
@@ -340,7 +340,7 @@ const I18N = {
     scanning: 'Scanning', loading: 'Loading', ready: 'Ready',
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
-    gridsCap: 'capped at {n} grids by your capital',
+    gridsCap: '{n} grids max (capital)', levBoost: 'leverage raised to {n}×', feeNote: 'fees {n} $',
     newsTitle: 'Market news', newsAll: 'See all ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'No news available.', newsError: 'News unavailable', retry: 'Retry',
     installTitle: 'Install Trader BotView', ok: 'Got it',
@@ -639,45 +639,60 @@ function scoreForGrid(m) {
 }
 
 const MIN_GRIDS = 2, MAX_GRIDS = 150, AUTO_MAX = 60;
+const FEE_RESERVE = 0.01, MAX_AUTO_LEV = 5;
 
 function buildGrid(m, capital, lev, override) {
   const f = m.filters || {};
   const tick = f.tick || '0.01', step = f.step || '0.00001';
   const minN = f.minN || 5, minQ = f.minQ || 0;
-  const L = clamp(Math.round(lev) || 1, 1, 10);
+  const reqLev = clamp(Math.round(lev) || 1, 1, 10);
   const total = Math.max(Number(capital) || 0, 0);
-  const notional = total * L;
+  const reserve = total * FEE_RESERVE;
+  const invested = Math.max(total - reserve, 0);
+  const minPerGrid = Math.max(minN, (minQ || 0) * m.price);
+  const needLev = Math.max(reqLev, MAX_AUTO_LEV);
+  const need = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / (needLev * (1 - FEE_RESERVE)));
+
+  let L = reqLev, levRaised = false;
+  if (invested > 0 && invested * L / (minPerGrid * 1.05) < MIN_GRIDS) {
+    const lMin = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / invested);
+    if (lMin <= MAX_AUTO_LEV) { L = Math.max(reqLev, lMin); levRaised = L > reqLev; }
+  }
+  const notional = invested * L;
+  const maxByCapital = Math.floor(notional / (minPerGrid * 1.05));
+  if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, lev: needLev, minPerGrid: minPerGrid };
+
   const width = clamp(m.atrPct * 6.2, 7, 26) * (m.adx != null && m.adx >= 25 ? 0.85 : 1);
-  const center = m.price * (1 - clamp(m.bias, -60, 60) / 100 * 0.006);
-  const lower = center * (1 - width / 200);
-  const upper = center * (1 + width / 200);
   const stepTarget = clamp(m.atrPct * 0.55, 0.5, 2.6);
   const manual = Number.isFinite(override) && override >= MIN_GRIDS;
   const wanted = manual ? Math.round(override) : Math.round(width / stepTarget);
-  const minPerGrid = Math.max(minN, (minQ || 0) * m.price);
-  const need = Math.ceil(MIN_GRIDS * minPerGrid * 1.05 / L);
-  const maxByCapital = Math.floor(notional / (minPerGrid * 1.05));
-  if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, minPerGrid: minPerGrid };
   const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
   const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
   const capped = wanted > cap;
+  const widthEff = capped ? clamp(count * stepTarget, 4, width) : width;
+  const center = m.price * (1 - clamp(m.bias, -60, 60) / 100 * 0.006);
+  const lower = center * (1 - widthEff / 200);
+  const upper = center * (1 + widthEff / 200);
   const perNotional = notional / count;
-  if (perNotional < minPerGrid) return { error: 'funds', count: count, need: need, minPerGrid: minPerGrid };
+  if (perNotional < minPerGrid) return { error: 'funds', count: count, need: need, lev: L, minPerGrid: minPerGrid };
   let qty = roundStep(perNotional / m.price, step, 'floor');
   if (qty < minQ) qty = roundStep(minQ, step, 'round');
-  if (!qty || qty * m.price < minN) return { error: 'funds', count: count, need: need, minPerGrid: minPerGrid };
-  const geo = width >= 12 || m.price >= 5000;
+  if (!qty || qty * m.price < minN) return { error: 'funds', count: count, need: need, lev: L, minPerGrid: minPerGrid };
+  const geo = widthEff >= 12 || m.price >= 5000;
   const slRaw = lower * (1 - clamp(m.atrPct * 0.9 / 100, 0.012, 0.06));
-  const stepPct = width / count;
+  const stepPct = widthEff / count;
+  const perGrid = invested / count;
+  const marginOk = perGrid * count <= total + 1e-6 && qty * m.price >= minN;
   return {
-    symbol: m.symbol, lev: L, marginMode: 'ISOLATED',
+    symbol: m.symbol, lev: L, levRaised: levRaised, marginMode: 'ISOLATED',
     dec: clamp(decimalsOf(tick), 0, 8),
     lower: roundStep(lower, tick, 'round'),
     upper: roundStep(upper, tick, 'round'),
-    count: count, geo: geo, width: width, stepPct: stepPct, manual: manual,
+    count: count, geo: geo, width: widthEff, stepPct: stepPct, manual: manual,
     capped: capped, cap: cap,
-    warn: perNotional < minN ? 'minNotional' : null, minN: minN,
-    perGrid: total / count, total: total, notional: notional, qty: qty,
+    warn: perNotional < minN ? 'minNotional' : null, minN: minN, minPerGrid: minPerGrid,
+    perGrid: perGrid, total: invested, capital: total, reserve: reserve,
+    notional: notional, qty: qty, marginOk: marginOk,
     tp: roundStep(upper, tick, 'round'),
     sl: roundStep(slRaw, tick, 'round'),
     netPerGrid: stepPct - 0.04
@@ -753,11 +768,13 @@ function rowsFor(p) {
 
 function noteHtml(p) {
   if (p.warn === 'minNotional') return '<span class="warn">' + esc(t('warnMinN', { n: nf(p.minN || 5, 0) })) + '</span>';
-  const tail = p.capped
+  const bits = [t('netPerGrid', { n: nf(p.netPerGrid, 2) })];
+  bits.push(p.capped
     ? '<span class="warn">' + esc(t('gridsCap', { n: p.count })) + '</span>'
-    : t('widthNote', { n: nf(p.width, 1) });
-  const bits = [t('netPerGrid', { n: nf(p.netPerGrid, 2) }), tail];
-  if (p.lev >= 5) bits.push('<span class="warn">' + esc(t('riskWarn', { n: p.lev })) + '</span>');
+    : t('widthNote', { n: nf(p.width, 1) }));
+  if (p.levRaised) bits.push('<span class="warn">' + esc(t('levBoost', { n: p.lev })) + '</span>');
+  else if (p.lev >= 5) bits.push('<span class="warn">' + esc(t('riskWarn', { n: p.lev })) + '</span>');
+  if (p.reserve >= 0.5) bits.push(t('feeNote', { n: nf(p.reserve, 2) }));
   return bits.join(' · ');
 }
 
@@ -902,6 +919,12 @@ async function runAuto() {
 function recompute(soft) {
   if (!state.metrics) return;
   state.plan = buildGrid(state.metrics, state.capital, state.lev, state.countOverride);
+  const p = state.plan;
+  if (p && !p.error && p.levRaised && p.lev !== state.lev) {
+    state.lev = p.lev;
+    const el = $('#lev');
+    if (el && document.activeElement !== el) el.value = p.lev;
+  }
   if (soft) updateValues(); else render();
 }
 
