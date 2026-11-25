@@ -1,14 +1,14 @@
 {
-  "name": "Trader BotView — analyse Binance & config de bot",
+  "name": "BotView — grille Futures Binance",
   "short_name": "BotView",
-  "description": "Analyse Binance en direct, mode manuel ou scan automatique, et paramètres de bot prêts à copier : bornes, grilles, montant, marge, TP/SL.",
+  "description": "Paramètres de bot de grille Futures calculés en direct : bornes, grilles, marge, levier, TP et SL, copiables en un appui. FR, EN, ES.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "orientation": "any",
+  "orientation": "portrait",
   "background_color": "#06080c",
   "theme_color": "#06080c",
   "categories": ["finance", "productivity", "utilities"],
@@ -19,15 +19,15 @@
   ],
   "shortcuts": [
     {
-      "name": "Mode auto",
+      "name": "Auto IA",
       "short_name": "Auto",
-      "description": "Scanner 8 paires et proposer la meilleure configuration",
+      "description": "Laisser l'IA choisir la meilleure paire pour une grille",
       "url": "./?mode=auto"
     },
     {
       "name": "Mode manuel",
       "short_name": "Manuel",
-      "description": "Analyser une paire précise",
+      "description": "Saisir une paire et calculer sa grille",
       "url": "./?mode=manual"
     }
   ]

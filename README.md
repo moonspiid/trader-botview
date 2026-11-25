@@ -1,121 +1,129 @@
 # Trader BotView
 
-<p>
-  <img alt="Binance live data" src="https://img.shields.io/badge/data-Binance%20live-f0b90b?labelColor=30363d">
-  <img alt="no API key" src="https://img.shields.io/badge/API%20key-not%20required-2ea043?labelColor=30363d">
-  <img alt="single HTML file" src="https://img.shields.io/badge/single-HTML%20file-1f6feb?labelColor=30363d">
-  <img alt="no build" src="https://img.shields.io/badge/build-none-8957e5?labelColor=30363d">
-  <br>
-  <img alt="grid, DCA, trend" src="https://img.shields.io/badge/bots-grid%20%C2%B7%20DCA%20%C2%B7%20trend-ea7a15?labelColor=30363d">
-  <img alt="copy paste configs" src="https://img.shields.io/badge/configs-copy%20%26%20paste-3fb950?labelColor=30363d">
-  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2ea043?labelColor=30363d">
-  <img alt="price, free" src="https://img.shields.io/badge/price-free-2ea043?labelColor=30363d">
+<p align="center">
+  <img src="assets/icon-192.png" alt="Logo Trader BotView" width="88">
 </p>
 
-**Le marché sous les yeux, la config dans le presse-papiers.** Un tableau de bord plein écran, sans défilement : il lit Binance en direct, choisit la stratégie de bot la plus adaptée, et sort les paramètres exacts — grille, DCA ou suivi de tendance — avec les niveaux de stop et de take-profit prêts à copier.
-
-<h3 align="center">
-  <a href="https://moonspiid.github.io/trader-botview/" target="_blank" rel="noopener noreferrer">↖ Ouvrir l'outil</a>
-</h3>
+<p align="center"><b>Une grille Futures, douze valeurs, un appui pour copier.</b></p>
 
 <p align="center">
-  Aucun compte, aucun serveur, aucune installation — ouvrez la page et lisez le marché.
-  <br>
-  Mode manuel pour choisir votre paire, mode auto pour laisser le scanner choisir. Aucune clé API demandée, aucun ordre envoyé.
+  <a href="https://moonspiid.github.io/trader-botview/"><b>Ouvrir l'application</b></a>
 </p>
+
+Un bot de grille Futures ne se règle pas au feeling. Il faut une borne basse, une borne haute, un nombre de niveaux, une marge par grille, un levier, un stop : douze nombres qui doivent rester cohérents entre eux. Un seul faux pas et le bot ouvre trois ordres au lieu de vingt, ou se fait liquider sur une mèche.
+
+BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un seul écran de téléphone, et met un bouton **Copier** sur chacune.
 
 ## Sommaire
 
-- [Pourquoi](#pourquoi)
-- [Fonctionnalités](#fonctionnalités)
+- [Ce que fait l'outil](#ce-que-fait-loutil)
+- [Les douze valeurs](#les-douze-valeurs)
 - [Démarrage rapide](#démarrage-rapide)
+- [Comment la grille est calculée](#comment-la-grille-est-calculée)
+- [Mode Auto IA](#mode-auto-ia)
+- [Langues](#langues)
+- [Volet actualités](#volet-actualités)
 - [Installer sur mobile](#installer-sur-mobile)
-- [Comment ça marche](#comment-ça-marche)
 - [Bon à savoir](#bon-à-savoir)
 - [Soutenir le projet](#soutenir-le-projet)
 - [Licence](#licence)
 
-## Pourquoi
+## Ce que fait l'outil
 
-Configurer un bot Binance demande de choisir une foule de nombres : bornes d'une grille, nombre de niveaux, pas, montant par ordre, stop, take-profit. La plupart des gens les devinent, ou copient ceux d'un inconnu sur un forum.
+- **Un seul écran, pas de défilement** — en-tête, mode, paire, quatre indicateurs, puis les douze cases de la grille. Tout tient dans un téléphone, même en 390 × 844. Seuls le volet d'actualités et son contenu défilent.
+- **Aucune liste de paires** — en mode manuel vous tapez le symbole (`BTC`, `BTCUSDT`, `ethusdt`), il est normalisé et vérifié contre les filtres Binance. En mode auto, c'est le scan qui choisit la paire.
+- **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ».
+- **Calcul Futures** — mode de marge isolé, levier, marge par grille, quantité par grille arrondie au `stepSize`, bornes arrondies au `tickSize`, TP et SL, largeur de plage et profit net par grille après frais.
+- **Trois langues** — français, anglais, espagnol. Le sélecteur de l'en-tête remplace tout le texte, y compris les nombres (séparateurs et formats locaux). Le choix est mémorisé.
+- **Volet d'actualités** — un panneau coulissant liste les annonces Binance (listings, radiations, maintenance, API, airdrops) avec leur date relative, sans clé d'API.
+- **Installable** — bouton d'installation, `manifest`, service worker et cache : l'app s'ouvre en plein écran et démarre hors ligne.
+- **Zéro dépendance** — une seule page HTML, pas de framework, pas de build, aucune clé, aucun ordre envoyé.
 
-Trader BotView fait le calcul à partir du marché réel : volatilité, tendance, liquidité, spread et frais. Il propose une stratégie, chiffre chaque paramètre, vérifie qu'il respecte les filtres Binance de la paire, et donne le tout en blocs copiables.
+## Les douze valeurs
 
-## Fonctionnalités
+| Case | Ce que vous en faites |
+| --- | --- |
+| **Paire** | Le symbole du contrat, à coller dans le champ Binance |
+| **Levier** | Le levier à régler avant de lancer la grille |
+| **Marge** | Le mode de marge, `ISOLATED` par défaut |
+| **Borne basse** | Limite inférieure de la grille |
+| **Borne haute** | Limite supérieure de la grille |
+| **Grilles** | Nombre de niveaux entre les deux bornes |
+| **Mode grille** | `ARITHMETIC` (pas fixe) ou `GEOMETRIC` (pas en pourcentage) |
+| **Marge/grille** | Capital engagé par niveau |
+| **Marge totale** | Capital total immobilisé par le bot |
+| **Qté/grille** | Taille de chaque ordre, arrondie au `stepSize` |
+| **TP** | Prise de profit, posée sur la borne haute |
+| **SL** | Stop de sécurité sous la borne basse |
 
-- **Tableau de bord plein écran** — trois volets sur une seule page, sans défilement : commandes et marché à gauche, graphique et plan au centre, configurations copiables à droite. Seuls les blocs de texte défilent, à l'intérieur de leur panneau.
-- **Mode manuel** — vous choisissez la paire, l'unité de temps et le capital, puis **Analyser**.
-- **Mode auto** — vous saisissez votre capital et le scanner compare **8 paires × 1h et 4h**, classe les 16 combinaisons sur 100 selon la confiance, le spread, la liquidité et le rendement attendu, puis charge la meilleure. Changer le capital relance le scan.
-- **Analyse en direct** — 500 bougies Binance en 15m, 1h, 4h ou 1d, plus le ticker 24 h et le carnet d'ordres.
-- **Indicateurs calculés dans le navigateur** — EMA 20/50/200, RSI 14, MACD 12/26/9, ATR 14, Bollinger 20/2, ADX 14 avec +DI/−DI, ratio de volume, spread et déséquilibre du carnet.
-- **Détection de régime** — range, tendance haussière, tendance baissière ou transition. Le régime décide de la stratégie, pas l'inverse.
-- **Trois stratégies chiffrées** :
-  - **Grid neutre** : bornes centrées sur le prix, nombre de grilles, pas, profit net par grille après frais, quantité par grille, stop de sécurité.
-  - **DCA adaptatif** : budget plafonné, ordre de base, six renforts avec prix et montants, prix de revient, take-profit, invalidation.
-  - **Suivi de tendance** : entrée, stop à 2 ATR, deux objectifs, taille de position, levier nécessaire, prix de liquidation estimé.
-- **Quatrième réponse possible : attendre** — quand le spread est trop large, la liquidité insuffisante ou la tendance trop violente, l'outil donne les conditions précises à surveiller au lieu de forcer un bot.
-- **Grille de paramètres copiables** — sous le graphique, chaque valeur du bot a sa case et son bouton **Copier** : borne basse, borne haute, nombre de grilles, pas de grille, montant par grille, montant total, quantité par grille, mode de grille (arithmétique/géométrique), **mode de marge** (Spot ou Isolated), TP et SL. Une valeur par appui, donc rien à sélectionner au doigt sur mobile.
-- **Niveaux SL / TP copiables** — entrée, stop, TP1, TP2 et quantité, chacun avec son bouton de copie, plus un ordre de sortie prêt à coller (OCO en spot, `STOP_MARKET` + `TAKE_PROFIT_MARKET` en futures, `TAKE_PROFIT_LIMIT` pour le DCA).
-- **Cinq blocs de sortie** : rapport texte, JSON de configuration complet (avec les niveaux de grille), paramètres d'ordre Binance, cURL et Python signés sur le testnet, checklist de sécurisation.
-- **Vérifications de faisabilité** — `tickSize`, `stepSize`, `minQty`, `minNotional`, profit par grille supérieur aux frais, liquidité 24 h, funding.
-- **Application installable** — bouton **Installer** dans l'en-tête : la page s'ajoute à l'écran d'accueil (Android, iOS, ordinateur), se lance en plein écran sans barre d'adresse et fonctionne hors ligne grâce à un service worker qui garde la page en cache.
-- **Mise en page mobile** — sous 760 px, l'interface passe en une colonne : en-tête sur deux lignes, formulaire sur deux colonnes, graphique à 220 px, et grille de paramètres à deux colonnes avec des boutons **Copier** agrandis pour le pouce.
-- **Zéro dépendance** — pas de framework, pas de build, pas de requête vers un serveur tiers : le graphique est dessiné en canvas et tout le calcul se fait dans la page.
+Les valeurs sont copiées sans séparateur de milliers et avec le point décimal (`55847.77`), c'est-à-dire exactement ce que Binance attend dans un champ numérique.
 
 ## Démarrage rapide
 
-1. Ouvrir **[la version en ligne](https://moonspiid.github.io/trader-botview/)**.
-2. Choisir un mode : **Manuel** (vous choisissez la paire) ou **Auto** (le scanner propose les meilleures options pour votre capital).
-3. En manuel : paire, unité de temps, capital, puis **Analyser**. En auto : capital, puis **Scanner le marché** (le scan démarre tout seul au premier passage).
-4. Lire le **Diagnostic** et le **Plan recommandé**, puis descendre sur **Configurations prêtes à copier**.
-5. Copier les paramètres un par un dans la grille sous le graphique (bornes, grilles, montant, marge, TP/SL), ou l'onglet **SL / TP** pour les niveaux et l'ordre de sortie complet.
-6. Tester sur [testnet.binance.vision](https://testnet.binance.vision) avant tout argent réel.
+1. Ouvrir **[l'application](https://moonspiid.github.io/trader-botview/)**.
+2. **Manuel** : taper la paire, choisir l'unité de temps, régler le capital et le levier, puis **Analyser**.
+   **Auto IA** : ne rien taper, appuyer sur **Scanner**. Le scan choisit la paire et remplit tout.
+3. Lire la ligne du bas : profit net par grille et largeur de plage.
+4. Copier les douze valeurs dans le formulaire de grille Futures de Binance.
+5. Tester sur [testnet.binancefuture.com](https://testnet.binancefuture.com) avant tout argent réel.
+
+## Comment la grille est calculée
+
+- **Largeur de plage** — dérivée de l'ATR 14 en pourcentage, multipliée par 6,2 puis bornée entre 7 % et 26 %. En tendance confirmée (ADX ≥ 25), la plage est resserrée de 15 %.
+- **Centrage** — le milieu de la plage est décalé de quelques dixièmes de pourcent contre le biais du moment (EMA 20/50, histogramme MACD, RSI), pour laisser plus de place du côté où le prix respire.
+- **Nombre de grilles** — pas visé à 55 % de l'ATR, borné entre 0,5 % et 2,6 % du prix, puis entre 8 et 60 niveaux. Le compte est réduit tant que la marge par grille ne couvre pas le notionnel minimum du contrat.
+- **Mode géométrique** — retenu quand la plage dépasse 12 % ou quand le prix dépasse 5 000, sinon arithmétique.
+- **Levier et marge** — notionnel = capital × levier ; marge par grille = capital / nombre de grilles ; quantité = notionnel / grilles / prix, arrondie vers le bas au `stepSize`.
+- **Stop** — 0,9 ATR sous la borne basse, borné entre 1,2 % et 6 %.
+- **Profit net** — pas de grille moins 0,04 % de frais aller-retour (maker sur les deux côtés).
+
+Les prix et quantités sont arrondis au `tickSize` et au `stepSize` du contrat, lus dans `exchangeInfo`. Si l'API Futures n'est pas joignable depuis votre pays, l'outil bascule sur les filtres du marché spot et le funding s'affiche « — ».
+
+## Mode Auto IA
+
+Le scanner récupère le ticker 24 h complet, garde les paires USDT dont le volume dépasse 15 M, écarte les tokens à effet de levier, puis analyse les 14 plus liquides sur l'unité de temps choisie. Chacune reçoit une note sur 100 :
+
+| Critère | Poids |
+| --- | --- |
+| ADX bas (marché en range) | jusqu'à 34 |
+| ATR entre 1 % et 4 % | jusqu'à 26 |
+| Volume 24 h | jusqu'à 22 |
+| Largeur de Bollinger | jusqu'à 8 |
+| Variation 24 h extrême | jusqu'à −10 |
+
+La meilleure note devient la configuration affichée. Le champ de paire passe en lecture seule : c'est le scan qui décide, pas vous.
+
+## Langues
+
+Le sélecteur **FR / EN / ES** de l'en-tête traduit l'interface entière, placeholders compris, et reformate les nombres selon la langue (`59 752,01` en français, `59,752.01` en anglais). Le choix est stocké dans le navigateur et la page reprend la langue du système au premier lancement.
+
+## Volet actualités
+
+Le bouton ☰ ouvre un panneau coulissant alimenté par les annonces publiques de Binance (`bapi/composite/v1/public/cms/article/list`), sans clé ni proxy :
+
+- listings et nouveaux contrats perpétuels,
+- radiations de paires,
+- maintenance de wallet et d'API,
+- airdrops et actualités de la plateforme.
+
+Chaque entrée porte une étiquette, une date relative (« il y a 9 heures ») et s'ouvre sur l'annonce d'origine. Un bouton ↻ recharge la liste. Un échec réseau affiche un bouton **Réessayer** au lieu d'un écran vide.
 
 ## Installer sur mobile
 
 1. Ouvrir [la page](https://moonspiid.github.io/trader-botview/) dans le navigateur du téléphone.
-2. Appuyer sur **⤓ Installer** en haut à droite.
-3. Suivre les trois étapes affichées :
-   - **Android / ordinateur** : le menu du navigateur propose *Installer l'application* ; sur ordinateur, l'icône d'installation est dans la barre d'adresse.
-   - **iPhone / iPad** : bouton **Partager**, puis **Sur l'écran d'accueil**, puis **Ajouter**.
-4. L'icône BotView apparaît sur l'écran d'accueil. Elle s'ouvre en plein écran et recharge la page depuis le cache si le réseau manque (les prix, eux, exigent une connexion).
+2. Appuyer sur **⤓** en haut à droite.
+3. **Android / ordinateur** : choisir *Installer l'application* dans le menu du navigateur. **iPhone / iPad** : **Partager**, puis **Sur l'écran d'accueil**.
+4. L'icône BotView s'ouvre en plein écran, sans barre d'adresse, et redémarre depuis le cache si le réseau manque.
 
-Le raccourci `?mode=auto` ouvre directement le scanner automatique, `?mode=manual` le mode manuel.
-
-### En local
-
-```bash
-git clone https://github.com/moonspiid/trader-botview.git
-cd trader-botview
-python3 -m http.server 8000
-```
-
-Puis ouvrir <http://localhost:8000>. Un double-clic sur `index.html` fonctionne aussi dans la plupart des navigateurs, mais un serveur local évite les restrictions CORS.
-
-## Comment ça marche
-
-```
-index.html        page unique : styles, indicateurs, graphique canvas, générateurs de config
-assets/logo.svg   logo du projet
-README.md
-LICENSE
-```
-
-- **Données** — `/api/v3/klines`, `/api/v3/ticker/24hr`, `/api/v3/depth` et `/api/v3/exchangeInfo`. La page essaie plusieurs hôtes dans l'ordre (`api.binance.com`, `data-api.binance.vision`, `api-gcp.binance.com`, `api4.binance.com`) et garde celui qui répond.
-- **Calculs** — EMA, RSI de Wilder, MACD, ATR de Wilder, Bollinger, ADX de Wilder, ratios de volume, spread et déséquilibre du carnet.
-- **Décision** — le régime et la qualité d'exécution (spread, liquidité) déterminent la stratégie ; les paramètres sont ensuite dérivés de l'ATR et du capital.
-- **Scan auto** — `scanMarket()` interroge 8 paires sur 2 unités de temps par lots de 4 requêtes, note chaque couple avec `scoreCandidate()`, puis applique le même moteur d'analyse à la meilleure option.
-- **Contraintes Binance** — chaque prix et chaque quantité sont arrondis au `tickSize` et au `stepSize` de la paire, et comparés au `minNotional`.
-- **Mémoire** — paire, unité de temps et paramètres sont conservés dans le navigateur (`localStorage`).
-- Pousser sur `main` republie le site via GitHub Pages.
+Le raccourci `?mode=auto` lance directement le scanner.
 
 ## Bon à savoir
 
-- Un range de grille est **centré sur le prix courant** et sa largeur est plafonnée par la volatilité, pour éviter une plage de 40 % avec trois ordres utiles.
-- Le budget d'un DCA est plafonné à **25 % du capital en tendance baissière**, 50 % sinon. Le reste est signalé comme réserve.
-- Un DCA n'a pas de stop-loss : l'outil affiche une **invalidation**, le niveau sous lequel on arrête les renforts.
-- L'outil ne se connecte pas à votre compte, ne demande aucune clé et n'envoie aucun ordre. Les performances passées ne préjugent pas des performances futures : un bot peut perdre tout le capital engagé.
-- Les données publiques Binance peuvent être bloquées dans certains pays ; l'hôte `data-api.binance.vision` sert alors de secours.
+- L'outil ne se connecte pas à votre compte, ne demande aucune clé et n'envoie aucun ordre. Il produit des nombres, vous les collez.
+- Une grille ne protège pas d'une cassure : si le prix sort de la plage et touche le SL, le bot doit être coupé. Le levier élevé rapproche la liquidation, surtout avec une plage large.
+- Le funding n'est affiché que si l'API Futures répond depuis votre pays ; les prix et les filtres viennent de `data-api.binance.vision`, qui reste accessible là où `api.binance.com` est bloqué.
+- Les données publiques Binance peuvent être bloquées ou retardées ; un calcul de grille reste une estimation, pas une promesse de rendement.
+- Un bot peut perdre tout le capital engagé. Les performances passées ne préjugent pas des performances futures.
 
 ## Soutenir le projet
 
