@@ -1,182 +1,184 @@
 # Trader BotView
 
 <p align="center">
-  <img src="assets/icon-192.png" alt="Logo Trader BotView" width="88">
+  <img src="assets/icon-192.png" alt="Trader BotView logo" width="88">
 </p>
 
-<p align="center"><b>Une grille Futures, douze valeurs, un appui pour copier.</b></p>
+<p align="center"><b>One Futures grid, twelve values, one tap to copy.</b></p>
 
 <p align="center">
-  <a href="https://moonspiid.github.io/trader-botview/"><b>Ouvrir l'application</b></a>
+  <a href="https://moonspiid.github.io/trader-botview/"><b>Open the app</b></a>
 </p>
 
-Un bot de grille Futures ne se règle pas au feeling. Il faut une borne basse, une borne haute, un nombre de niveaux, une marge par grille, un levier, un stop : douze nombres qui doivent rester cohérents entre eux. Un seul faux pas et le bot ouvre trois ordres au lieu de vingt, ou se fait liquider sur une mèche.
+<p align="center"><sub>English · <a href="README.fr.md">Français</a></sub></p>
 
-BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un seul écran de téléphone, et met un bouton **Copier** sur chacune.
+A Futures grid bot is not something you eyeball. It needs a lower bound, an upper bound, a number of levels, a margin per grid, a leverage, a stop: twelve numbers that have to stay consistent with each other. One wrong step and the bot opens three orders instead of twenty, or gets liquidated on a wick.
 
-## Sommaire
+BotView computes those twelve values from the live market, puts them on a single phone screen, and gives each one a **Copy** button.
 
-- [Ce que fait l'outil](#ce-que-fait-loutil)
-- [Les douze valeurs](#les-douze-valeurs)
-- [Démarrage rapide](#démarrage-rapide)
-- [Nombre de grilles](#nombre-de-grilles)
-- [Comment la grille est calculée](#comment-la-grille-est-calculée)
-- [Mode Auto IA](#mode-auto-ia)
-- [Langues](#langues)
-- [Volet actualités](#volet-actualités)
-- [Installer sur mobile](#installer-sur-mobile)
-- [Bon à savoir](#bon-à-savoir)
-- [Soutenir le projet](#soutenir-le-projet)
-- [Licence](#licence)
+## Contents
 
-## Ce que fait l'outil
+- [What the tool does](#what-the-tool-does)
+- [The twelve values](#the-twelve-values)
+- [Quick start](#quick-start)
+- [Grid count](#grid-count)
+- [How the grid is computed](#how-the-grid-is-computed)
+- [AI auto mode](#ai-auto-mode)
+- [Languages](#languages)
+- [News panel](#news-panel)
+- [Install on mobile](#install-on-mobile)
+- [Good to know](#good-to-know)
+- [Support the project](#support-the-project)
+- [License](#license)
 
-- **Un seul écran, pas de défilement** — en-tête, mode, paire, quatre indicateurs, puis les douze cases de la grille. Tout tient dans un téléphone, même en 390 × 844. Seuls le volet d'actualités et son contenu défilent.
-- **Aucune liste de paires** — en mode manuel vous tapez le symbole (`BTC`, `BTCUSDT`, `ethusdt`), il est normalisé et vérifié contre les filtres Binance. En mode auto, c'est le scan qui choisit la paire.
-- **Libellés bilingues** — chaque case affiche le terme local suivi du terme anglais en gris (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). Un trader qui colle ces valeurs dans une interface Binance en anglais retrouve immédiatement le bon champ, même si son interface est en français.
-- **Douze valeurs copiables** — chaque case est un bouton : un appui copie la valeur brute, prête à coller dans Binance, et la case passe au vert avec « Copié ». Le nombre de grilles reste modifiable : saisie directe, boutons − / +, ou retour au calcul automatique.
-- **Calcul Futures** — mode de marge isolé, levier, marge par grille, quantité par grille arrondie au `stepSize`, bornes arrondies au `tickSize`, TP et SL, largeur de plage et profit net par grille après frais.
-- **Langue choisie toute seule** — au premier lancement, la page déduit la langue du fuseau horaire (français en Algérie, au Maroc, en Tunisie, au Sénégal, en France, au Québec) puis de la langue du navigateur, avec l'anglais en repli. Le bouton globe de l'en-tête passe à la langue suivante et mémorise le choix.
-- **Volet d'actualités** — un panneau coulissant liste les annonces Binance (listings, radiations, maintenance, API, airdrops) avec leur date relative, sans clé d'API.
-- **Installable** — bouton d'installation, `manifest`, service worker et cache : l'app s'ouvre en plein écran et démarre hors ligne.
-- **Zéro dépendance** — une seule page HTML, pas de framework, pas de build, aucune clé, aucun ordre envoyé.
+## What the tool does
 
-## Les douze valeurs
+- **One screen, no scrolling** — header, mode, pair, four indicators, then the twelve grid cells. It all fits a phone, even at 390 × 844. Only the news panel and its content scroll.
+- **No pair list** — in manual mode you type the symbol (`BTC`, `BTCUSDT`, `ethusdt`), it gets normalised and checked against the Binance filters. In auto mode the scan picks the pair.
+- **Bilingual labels** — every cell shows the local term followed by the English term in grey (`Paire Pair`, `Marge/grille Margin/grid`, `Borne basse Lower bound`). A trader pasting those values into an English Binance interface finds the right field immediately, even when their interface is in French.
+- **Twelve copyable values** — each cell is a button: one tap copies the raw value, ready to paste into Binance, and the cell turns green with "Copied". The grid count stays editable: type it, use the − / + buttons, or go back to the automatic value.
+- **Futures maths** — isolated margin mode, leverage, margin per grid, quantity per grid rounded down to `stepSize`, bounds rounded to `tickSize`, TP and SL, range width and net profit per grid after fees.
+- **Language picked by itself** — on first load the page derives the language from the time zone (French in Algeria, Morocco, Tunisia, Senegal, France, Québec) then from the browser language, falling back to English. The globe button in the header switches and remembers the choice.
+- **News panel** — a sliding panel lists Binance announcements (listings, delistings, maintenance, API, airdrops) with relative dates, no API key.
+- **Installable** — install button, `manifest`, service worker and cache: the app opens full screen and starts offline.
+- **Zero dependencies** — a single HTML page, no framework, no build step, no keys, no order ever sent.
 
-| Case | Ce que vous en faites |
+## The twelve values
+
+| Cell | What you do with it |
 | --- | --- |
-| **Paire** | Le symbole du contrat, à coller dans le champ Binance |
-| **Levier** | Le levier à régler avant de lancer la grille |
-| **Marge** | Le mode de marge, `ISOLATED` par défaut |
-| **Borne basse** | Limite inférieure de la grille |
-| **Borne haute** | Limite supérieure de la grille |
-| **Grilles** | Nombre de niveaux, modifiable de 2 à 150 |
-| **Mode grille** | `ARITHMETIC` (pas fixe) ou `GEOMETRIC` (pas en pourcentage) |
-| **Marge/grille** | Capital engagé par niveau |
-| **Marge totale** | Capital total immobilisé par le bot |
-| **Qté/grille** | Taille de chaque ordre, arrondie au `stepSize` |
-| **TP** | Prise de profit, posée sur la borne haute |
-| **SL** | Stop de sécurité sous la borne basse |
+| **Pair** | The contract symbol, to paste into the Binance field |
+| **Leverage** | The leverage to set before starting the grid |
+| **Margin** | The margin mode, `ISOLATED` by default |
+| **Lower bound** | Lower limit of the grid |
+| **Upper bound** | Upper limit of the grid |
+| **Grids** | Number of levels, editable from 2 to 150 |
+| **Grid mode** | `ARITHMETIC` (fixed step) or `GEOMETRIC` (percentage step) |
+| **Margin/grid** | Capital committed per level |
+| **Total margin** | Total capital locked by the bot |
+| **Qty/grid** | Size of each order, rounded to `stepSize` |
+| **TP** | Take profit, placed on the upper bound |
+| **SL** | Safety stop below the lower bound |
 
-Les valeurs sont copiées sans séparateur de milliers et avec le point décimal (`55847.77`), c'est-à-dire exactement ce que Binance attend dans un champ numérique.
+Values are copied without thousand separators and with a decimal point (`55847.77`), which is exactly what Binance expects in a numeric field.
 
-## Nombre de grilles
+## Grid count
 
-Le champ **Grilles** est un vrai champ de saisie, pas une valeur figée :
+The **Grids** field is a real input, not a frozen value:
 
-- **Automatique** (par défaut) : le nombre est déduit de la largeur de la plage et de la volatilité, entre 2 et 60 niveaux. La mention `auto` s'affiche dans la case.
-- **Manuel** : tapez un nombre, ou appuyez sur **−** / **+**. La case passe en `auto` cliquable pour revenir au calcul.
-- **Petit capital** : 2 ou 3 grilles suffisent pour démarrer. Avec 20 $ et un levier de 3, deux grilles passent le notionnel minimum ; le reste des valeurs (marge par grille, quantité, TP, SL) se recalcule à chaque frappe.
-- **Capital en direct** : chaque chiffre tapé dans le champ Capital recalcule immédiatement la marge totale, la marge par grille et le nombre de grilles, sans attendre de quitter le champ. La marge totale vaut le capital moins une réserve de frais de 0,05 % du notionnel, et la marge par grille vaut ce montant ÷ grilles, sans arrondi caché.
-- **Plafond forcé par le capital** : le nombre de grilles ne peut jamais dépasser ce que les fonds supportent. La limite vaut `notionnel ÷ (notionnel minimum par grille × 1,05)`, où le minimum par grille est le plus grand des deux seuils imposés par Binance : 5 $ de notionnel, et `quantité minimale × prix` — 0,001 BTC, soit 60 $ à 60 000 $.
-- **Vérification de marge, dans l'ordre** : le capital passe d'abord en réserve de frais (0,05 % du notionnel, soit 1,50 $ sur 1 000 $ à 3×), puis l'outil cherche le plus petit nombre de grilles finançable. Si deux grilles ne tiennent pas au levier demandé, le levier est relevé juste ce qu'il faut, jusqu'au maximum de 10× — 30 $ sur BTCUSDT passent de 3× à 5×, 20 $ à 7×, 13 $ à 10×, et le champ Levier suit pour que la case copiable dise la vérité.
-- **Validation finale bloquante** : avant affichage, neuf contrôles sont repassés sur le plan — au moins 2 grilles, levier entre 1 et 10, quantité positive et au-dessus du minimum du contrat, notionnel par grille au-dessus du minimum, quantité alignée sur le pas, marge totale dans le capital, réserve couverte. Un seul échec et rien n'est affiché.
-- **Refus chiffré quand c'est physiquement impossible** : 12 $ sur BTCUSDT ne peuvent pas payer deux ordres de 60 $ à 10×, l'outil répond « fonds insuffisants : 13 $ minimum pour 2 grilles à 10× » au lieu d'afficher une quantité que Binance rejetterait.
-- **Bornes resserrées quand le capital plafonne** : la plage suit la structure du marché, mais si le capital ne finance que 4 grilles sur une plage de 15 %, le pas grimperait à 3,9 %. La plage est alors ramenée à 4 × 1,8 fois le pas visé, centrée sur le prix, pour garder une grille exploitable.
-- **Aucune quantité impossible** : la quantité est arrondie vers le bas au pas du contrat, puis vérifiée. Si elle passe sous la quantité minimale ou si son notionnel tombe sous 5 $, l'outil refuse de produire le plan et indique le capital nécessaire : « fonds insuffisants : 42 $ minimum pour 2 grilles à 3× ». Mieux vaut ce message qu'un ordre rejeté par Binance.
-- **Données Futures bloquées** : si l'API Futures est inaccessible, la pastille d'état passe à l'ambre et un infobulle prévient que les filtres spot sont utilisés — les quantités minimales y sont plus permissives, à vérifier avant de lancer le bot.
+- **Automatic** (default): the count follows the range width and volatility, between 2 and 60 levels. An `auto` tag shows in the cell.
+- **Manual**: type a number, or tap **−** / **+**. The tag becomes clickable to return to the computed value.
+- **Small capital**: 2 or 3 grids are enough to start. With 20 $ at 3×, two grids clear the minimum notional; the rest (margin per grid, quantity, TP, SL) recomputes on every keystroke.
+- **Live capital**: every digit typed into the Capital field immediately recomputes the total margin, the margin per grid and the grid count, without leaving the field. Total margin equals the capital minus a fee reserve of 0.05 % of the notional, and margin per grid is that amount ÷ grids, with no hidden rounding.
+- **Ceiling forced by capital**: the grid count can never exceed what the funds support. The limit is `notional ÷ (minimum notional per grid × 1.001)`, where the minimum per grid is the stricter of the two thresholds Binance imposes: 5 $ of notional, and `minimum quantity × price` — 0.001 BTC, i.e. 60 $ at 60 000 $.
+- **Margin check, in order**: the capital first goes into a fee reserve (0.05 % of the notional, i.e. 1.50 $ on 1 000 $ at 3×), then the tool looks for the smallest number of grids it can finance. If two grids do not fit at the requested leverage, leverage is raised just enough, up to the 10× maximum — 30 $ on BTCUSDT goes from 3× to 5×, 20 $ to 7×, 13 $ to 10×, and the Leverage field follows so the copyable cell tells the truth.
+- **Blocking final validation**: before display, nine checks run over the plan — at least 2 grids, leverage between 1 and 10, positive quantity above the contract minimum, notional per grid above the minimum, quantity aligned to the step, total margin within the capital, reserve covered, price strictly inside the bounds. One failure and nothing is displayed.
+- **Numbered refusal when it is physically impossible**: 12 $ on BTCUSDT cannot pay for two 60 $ orders at 10×, so the tool answers "not enough funds: 13 $ minimum for 2 grids at 10×" instead of showing a quantity Binance would reject.
+- **Bounds tightened when capital caps the count**: the range follows market structure, but if the capital only finances 4 grids over a 15 % range, the step would jump to 3.9 %. The range is then brought back to 4 × 1.8 times the target step, centred on the price, to keep the grid usable.
+- **No impossible quantity**: quantity is rounded down to the contract step, then checked. If it drops below the minimum quantity or its notional falls under 5 $, the tool refuses to produce the plan and states the capital needed: "not enough funds: 42 $ minimum for 2 grids at 3×". That message beats an order rejected by Binance.
+- **Futures data blocked**: if the Futures API is unreachable, the status pill turns amber and a tooltip warns that spot filters are in use — minimum quantities there are more permissive, check them before starting the bot.
 
-Le nombre de grilles est conservé quand vous changez de paire, de capital ou d'unité de temps, jusqu'à ce que vous reveniez à `auto`.
+The grid count is kept when you change pair, capital or timeframe, until you go back to `auto`.
 
-## Démarrage rapide
+## Quick start
 
-1. Ouvrir **[l'application](https://moonspiid.github.io/trader-botview/)**.
-2. **Manuel** : taper la paire, choisir l'unité de temps, régler le capital et le levier, puis **Analyser**.
-   **Auto IA** : ne rien taper, appuyer sur **Scanner**. Le scan choisit la paire et remplit tout.
-3. Lire la ligne du bas : profit net par grille et largeur de plage.
-4. Copier les douze valeurs dans le formulaire de grille Futures de Binance.
-5. Tester sur [testnet.binancefuture.com](https://testnet.binancefuture.com) avant tout argent réel.
+1. Open **[the app](https://moonspiid.github.io/trader-botview/)**.
+2. **Manual**: type the pair, pick the timeframe, set capital and leverage, then **Analyse**.
+   **AI auto**: type nothing, tap **Scan**. The scan picks the pair and fills everything.
+3. Read the bottom line: net profit per grid and range width.
+4. Copy the twelve values into the Binance Futures grid form.
+5. Test on [testnet.binancefuture.com](https://testnet.binancefuture.com) before any real money.
 
-## Comment la grille est calculée
+## How the grid is computed
 
-- **Bornes** — le plus haut et le plus bas réellement touchés sur la fenêtre de la période : 42 bougies en 4 h (7 jours), 72 en 1 h (3 jours), 96 en 15 min (24 h), 30 en 1 j (1 mois). La borne basse est le plus bas de cette fenêtre, la borne haute son plus haut — les deux extrêmes que le trader voit sur son graphique, pas une bande théorique.
-- **Marge autour du prix** — si le prix colle à un extrême (sortie de range, nouveau plus haut), la plage est étendue de 1,2 ATR de ce côté, au minimum 2 %, pour que le prix ne soit jamais collé au bord.
-- **Cohérence avec le nombre de grilles** — la plage de structure est conservée tant que le pas reste entre 0,6 et 1,8 fois le pas visé. Au-delà, elle est resserrée autour du prix pour éviter des pas de 4 % avec trois grilles.
-- **Nombre de grilles** — pas visé à 55 % de l'ATR, borné entre 0,5 % et 2,6 % du prix : le compte découle de la plage divisée par ce pas, puis entre 2 et 60 niveaux. Le compte est réduit tant que la marge par grille ne couvre pas le notionnel minimum du contrat.
-- **Mode géométrique** — retenu quand la plage dépasse 12 % ou quand le prix dépasse 5 000, sinon arithmétique.
-- **Levier et marge** — notionnel = capital investi × levier ; marge totale = capital − réserve de frais (0,05 % du notionnel) ; marge par grille = capital investi ÷ nombre de grilles ; quantité = notionnel / grilles / prix, arrondie vers le bas au `stepSize`.
-- **Nombre de grilles selon le capital** — en automatique, le nombre de niveaux est plafonné par le capital : à 10 $ et levier 3, cinq grilles ; à 100 $, onze. Il remonte dès que le capital augmente, sans quitter le champ.
-- **Stop** — 0,9 ATR sous la borne basse, borné entre 1,2 % et 6 %.
-- **Profit net** — pas de grille moins 0,04 % de frais aller-retour (maker sur les deux côtés).
+- **Bounds** — the highest and lowest prices actually touched over the timeframe window: 42 candles at 4 h (7 days), 72 at 1 h (3 days), 96 at 15 min (24 h), 30 at 1 d (1 month). The lower bound is that window's low, the upper bound its high — the two extremes a trader sees on their chart, not a theoretical band.
+- **Margin around the price** — if the price sits against an extreme (range breakout, new high), the range is extended by 1.2 ATR on that side, at least 2 %, so the price is never stuck at the edge.
+- **Consistency with the grid count** — the structure range is kept as long as the step stays between 0.6 and 1.8 times the target step. Beyond that it is tightened around the price, to avoid 4 % steps with three grids.
+- **Grid count** — target step at 55 % of ATR, clamped between 0.5 % and 2.6 % of price: the count follows from the range divided by that step, then between 2 and 60 levels. The count is reduced while the margin per grid does not cover the contract's minimum notional.
+- **Geometric mode** — chosen when the range exceeds 12 % or when the price exceeds 5 000, arithmetic otherwise.
+- **Leverage and margin** — notional = invested capital × leverage; total margin = capital − fee reserve (0.05 % of notional); margin per grid = invested capital ÷ grid count; quantity = notional / grids / price, rounded down to `stepSize`.
+- **Grid count versus capital** — in automatic mode the number of levels is capped by what the capital can finance: 100 $ on BTCUSDT at 3× gives 4 grids, 1 000 $ gives 11. It goes back up as soon as the capital rises, without leaving the field.
+- **Stop** — 0.9 ATR below the lower bound, clamped between 1.2 % and 6 %.
+- **Net profit** — grid step minus 0.04 % round-trip fees (maker on both sides).
 
-Les prix et quantités sont arrondis au `tickSize` et au `stepSize` du contrat, lus dans `exchangeInfo`. Si l'API Futures n'est pas joignable depuis votre pays, l'outil bascule sur les filtres du marché spot et le funding s'affiche « — ».
+Prices and quantities are rounded to the contract's `tickSize` and `stepSize`, read from `exchangeInfo`. If the Futures API is not reachable from your country, the tool falls back to spot market filters and funding shows "—".
 
-## Mode Auto IA
+## AI auto mode
 
-Le scanner récupère le ticker 24 h complet, garde les paires USDT dont le volume dépasse 15 M, écarte les tokens à effet de levier, puis analyse les 14 plus liquides sur l'unité de temps choisie. Chacune reçoit une note sur 100 :
+The scanner fetches the full 24 h ticker, keeps USDT pairs above 15 M volume, drops leveraged tokens, then analyses the 14 most liquid on the chosen timeframe. Each one gets a score out of 100:
 
-| Critère | Poids |
+| Criterion | Weight |
 | --- | --- |
-| ADX bas (marché en range) | jusqu'à 34 |
-| ATR entre 1 % et 4 % | jusqu'à 26 |
-| Volume 24 h | jusqu'à 22 |
-| Largeur de Bollinger | jusqu'à 8 |
-| Variation 24 h extrême | jusqu'à −10 |
+| Low ADX (ranging market) | up to 34 |
+| ATR between 1 % and 4 % | up to 26 |
+| 24 h volume | up to 22 |
+| Bollinger width | up to 8 |
+| Extreme 24 h change | up to −10 |
 
-La meilleure note devient la configuration affichée. Le champ de paire passe en lecture seule : c'est le scan qui décide, pas vous.
+The best score becomes the displayed configuration. The pair field turns read-only: the scan decides, not you.
 
-## Langues
+## Languages
 
-Il n'y a plus de liste de langues à choisir : la page se règle toute seule.
+There is no language list to pick from: the page configures itself.
 
-1. **Choix mémorisé** — si vous avez déjà changé de langue, c'est celui-là qui revient.
-2. **Fuseau horaire** — `Africa/Algiers`, `Africa/Casablanca`, `Africa/Tunis`, `Africa/Dakar`, `Europe/Paris`, `Europe/Brussels`, `America/Montreal` et leurs voisins donnent le français. Un navigateur anglais en Algérie obtient donc du français, pas de l'anglais.
-3. **Langue du navigateur** — si le fuseau n'est pas reconnu, `navigator.languages` tranche entre le français et l'anglais, et rien d'autre.
-4. **Repli** — anglais.
+1. **Remembered choice** — if you already switched language, that one comes back.
+2. **Time zone** — `Africa/Algiers`, `Africa/Casablanca`, `Africa/Tunis`, `Africa/Dakar`, `Europe/Paris`, `Europe/Brussels`, `America/Montreal` and their neighbours give French. An English browser in Algeria therefore gets French, not English.
+3. **Browser language** — if the time zone is not recognised, `navigator.languages` decides between French and English, and nothing else.
+4. **Fallback** — English.
 
-Aucun appel réseau : la détection utilise le fuseau et le navigateur, pas une base d'adresses IP.
+No network call: detection uses the time zone and the browser, not an IP database.
 
-La langue locale et l'anglais fonctionnent ensemble : l'interface est dans la langue détectée, chaque libellé de case porte son équivalent anglais en gris, et toute chaîne absente d'une traduction retombe sur l'anglais plutôt que sur une clé technique.
+The local language and English work together: the interface is in the detected language, every cell label carries its English equivalent in grey, and any string missing from a translation falls back to English rather than to a technical key.
 
-L'interface ne bascule qu'entre deux langues : le français et l'anglais. Un fuseau espagnol, portugais, arabe ou japonais tombe sur l'anglais — aucune troisième langue n'est proposée. Le bouton **globe** de l'en-tête affiche la langue active (`FR` ou `EN`) et bascule de l'une à l'autre d'un appui, avec le nom de la langue en confirmation. Le choix est stocké et prioritaire sur la détection. Les nombres suivent la langue : `59 752,01` en français, `59,752.01` en anglais.
+The interface switches between two languages only: French and English. A Spanish, Portuguese, Arabic or Japanese time zone lands on English — no third language is offered. The **globe** button in the header shows the active language (`FR` or `EN`) and toggles between them on tap, with the language name as confirmation. The choice is stored and takes priority over detection. Numbers follow the language: `59 752,01` in French, `59,752.01` in English.
 
-## Volet actualités
+## News panel
 
-Le bouton ☰ ouvre un panneau coulissant alimenté par les annonces publiques de Binance (`bapi/composite/v1/public/cms/article/list`), sans clé ni proxy :
+The ☰ button opens a sliding panel fed by Binance public announcements (`bapi/composite/v1/public/cms/article/list`), with no key and no proxy:
 
-- listings et nouveaux contrats perpétuels,
-- radiations de paires,
-- maintenance de wallet et d'API,
-- airdrops et actualités de la plateforme.
+- listings and new perpetual contracts,
+- pair delistings,
+- wallet and API maintenance,
+- airdrops and platform news.
 
-Chaque entrée porte une étiquette, une date relative (« il y a 9 heures ») et s'ouvre sur l'annonce d'origine. Un bouton ↻ recharge la liste. Un échec réseau affiche un bouton **Réessayer** au lieu d'un écran vide.
+Each entry carries a tag, a relative date ("9 hours ago") and opens the original announcement. A ↻ button reloads the list. A network failure shows a **Retry** button instead of a blank screen.
 
-## Installer sur mobile
+## Install on mobile
 
-1. Ouvrir [la page](https://moonspiid.github.io/trader-botview/) dans le navigateur du téléphone.
-2. Appuyer sur **⤓** en haut à droite.
-3. **Android / ordinateur** : choisir *Installer l'application* dans le menu du navigateur. **iPhone / iPad** : **Partager**, puis **Sur l'écran d'accueil**.
-4. L'icône BotView s'ouvre en plein écran, sans barre d'adresse, et redémarre depuis le cache si le réseau manque.
+1. Open [the page](https://moonspiid.github.io/trader-botview/) in the phone browser.
+2. Tap **⤓** in the top right corner.
+3. **Android / desktop**: pick *Install app* in the browser menu. **iPhone / iPad**: **Share**, then **Add to Home Screen**.
+4. The BotView icon opens full screen, without an address bar, and restarts from cache when the network is gone.
 
-Le raccourci `?mode=auto` lance directement le scanner.
+The `?mode=auto` shortcut opens the scanner directly.
 
-## Bon à savoir
+## Good to know
 
-- L'outil ne se connecte pas à votre compte, ne demande aucune clé et n'envoie aucun ordre. Il produit des nombres, vous les collez.
-- Une grille ne protège pas d'une cassure : si le prix sort de la plage et touche le SL, le bot doit être coupé. Le levier élevé rapproche la liquidation, surtout avec une plage large.
-- Le funding n'est affiché que si l'API Futures répond depuis votre pays ; les prix et les filtres viennent de `data-api.binance.vision`, qui reste accessible là où `api.binance.com` est bloqué.
-- Les données publiques Binance peuvent être bloquées ou retardées ; un calcul de grille reste une estimation, pas une promesse de rendement.
-- Un bot peut perdre tout le capital engagé. Les performances passées ne préjugent pas des performances futures.
+- The tool does not connect to your account, asks for no key and sends no order. It produces numbers, you paste them.
+- A grid does not protect against a breakout: if the price leaves the range and hits the SL, the bot must be stopped. High leverage brings liquidation closer, especially with a wide range.
+- Funding is only shown when the Futures API answers from your country; prices and filters come from `data-api.binance.vision`, which stays reachable where `api.binance.com` is blocked.
+- Binance public data can be blocked or delayed; a grid calculation remains an estimate, not a promise of return.
+- A bot can lose the whole committed capital. Past performance does not predict future results.
 
-## Soutenir le projet
+## Support the project
 
-L'outil est gratuit, sans compte, sans publicité et sans tracking, et il n'y a pas d'offre payante à la clé. S'il vous fait gagner du temps, un don paie les heures derrière et les prochaines fonctionnalités.
+The tool is free, with no account, no ads and no tracking, and there is no paid tier behind it. If it saves you time, a donation pays for the hours behind it and for the next features.
 
-**Don en USDT →** une seule adresse crypto, pas de carte, pas de compte, pas de processeur de paiement entre les deux.
+**Donate in USDT →** a single crypto address, no card, no account, no payment processor in between.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/moonspiid/ai-agent-multi-model/master/donate-usdt-qr.png" alt="QR code de l'adresse de don EVM" width="200">
+  <img src="https://raw.githubusercontent.com/moonspiid/ai-agent-multi-model/master/donate-usdt-qr.png" alt="QR code of the EVM donation address" width="200">
   <br>
-  <sub>À scanner avec n'importe quel wallet</sub>
+  <sub>Scan with any wallet</sub>
 </p>
 
 ```
 0xA2700896E16BE762467D458F2B45260f8FAC9F3e
 ```
 
-C'est une adresse EVM classique : **la même adresse fonctionne sur tous les réseaux EVM**. Envoyez l'USDT sur celui qui vous arrange :
+It is a regular EVM address: **the same address works on every EVM network**. Send USDT on whichever suits you:
 
-| Réseau | Token |
+| Network | Token |
 | --- | --- |
 | BNB Smart Chain (BEP20) | USDT |
 | Ethereum (ERC20) | USDT |
@@ -185,8 +187,8 @@ C'est une adresse EVM classique : **la même adresse fonctionne sur tous les ré
 | Base | USDT |
 | Optimism | USDT |
 
-Deux règles : envoyez **uniquement de l'USDT** (un autre token envoyé à cette adresse ne peut pas être récupéré), et gardez un peu de la monnaie du réseau (BNB, ETH, POL) dans votre wallet pour payer les frais. Un réseau non-EVM comme Tron (TRC20) utilise un autre format d'adresse : rien de ce qui y est envoyé n'arrive ici.
+Two rules: send **USDT only** (another token sent to this address cannot be recovered), and keep a little of the network's coin (BNB, ETH, POL) in your wallet to pay fees. A non-EVM network such as Tron (TRC20) uses another address format: nothing sent there arrives here.
 
-## Licence
+## License
 
-[MIT](LICENSE) © 2026 moonspiid — utilisez-le, modifiez-le, publiez-le.
+[MIT](LICENSE) © 2026 moonspiid — use it, change it, publish it.
