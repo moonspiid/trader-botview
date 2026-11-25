@@ -29,6 +29,7 @@ BotView calcule ces douze valeurs à partir du marché réel, les affiche sur un
 - [Installer sur mobile](#installer-sur-mobile)
 - [Bon à savoir](#bon-à-savoir)
 - [Soutenir le projet](#soutenir-le-projet)
+- [Contributeurs](#contributeurs)
 - [Licence](#licence)
 
 ## Ce que fait l'outil
@@ -188,6 +189,14 @@ C'est une adresse EVM classique : **la même adresse fonctionne sur tous les ré
 | Optimism | USDT |
 
 Deux règles : envoyez **uniquement de l'USDT** (un autre token envoyé à cette adresse ne peut pas être récupéré), et gardez un peu de la monnaie du réseau (BNB, ETH, POL) dans votre wallet pour payer les frais. Un réseau non-EVM comme Tron (TRC20) utilise un autre format d'adresse : rien de ce qui y est envoyé n'arrive ici.
+
+## Contributeurs
+
+| Contributeur | Rôle |
+| --- | --- |
+| [moonspiid](https://github.com/moonspiid) · [X](https://x.com/moonspiid) | Auteur — moteur de grille, interface, documentation |
+
+Les issues et pull requests sont les bienvenues sur [GitHub](https://github.com/moonspiid/trader-botview).
 
 ## Licence
 

@@ -141,6 +141,25 @@ body{display:flex;align-items:center;justify-content:center}
 .note b{color:var(--txt);font-weight:700}
 .note .warn{color:var(--acc)}
 .note .bad{color:var(--dn)}
+.cred{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;gap:8px;
+  font:9px/1 var(--mono);color:var(--dim);padding:1px 0 4px;letter-spacing:.02em;
+}
+.cred a,.cred button{
+  color:var(--muted);text-decoration:none;background:none;border:0;font:inherit;
+  padding:3px 2px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;
+}
+.cred a:hover,.cred button:hover{color:var(--acc)}
+.cred .sep{color:var(--line2)}
+.donAddr{
+  width:100%;display:block;text-align:left;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:9px;padding:9px 10px;margin:0 0 9px;color:var(--txt);
+  font:10.5px/1.5 var(--mono);word-break:break-all;cursor:pointer;
+}
+.donAddr:active{border-color:var(--acc)}
+.donAddr small{display:block;color:var(--dim);font-size:8.5px;margin-top:3px;font-family:var(--sans)}
+.donP{font-size:10.5px;line-height:1.55;color:var(--muted);margin:0 0 10px}
+.donQr{display:block;margin:0 auto 10px;width:132px;height:132px;border-radius:8px;background:#fff;padding:5px}
 .scrim{
   position:fixed;inset:0;background:rgba(3,5,9,.62);backdrop-filter:blur(2px);
   opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;
@@ -268,6 +287,15 @@ body{display:flex;align-items:center;justify-content:center}
   <section class="kpis" id="kpis"></section>
   <section class="cells" id="cfg"></section>
   <footer class="note" id="note"></footer>
+  <div class="cred">
+    <span>© 2026 moonspiid</span>
+    <span class="sep">·</span>
+    <a href="https://github.com/moonspiid/trader-botview" target="_blank" rel="noopener" aria-label="GitHub">GitHub</a>
+    <span class="sep">·</span>
+    <a href="https://x.com/moonspiid" target="_blank" rel="noopener" aria-label="X">X</a>
+    <span class="sep">·</span>
+    <button type="button" id="btnDon" data-i18n="credDon">Don USDT</button>
+  </div>
 </div>
 
 <aside class="drawer" id="drawer" aria-hidden="true">
@@ -289,6 +317,18 @@ body{display:flex;align-items:center;justify-content:center}
     <h3 data-i18n="installTitle">Installer BotView</h3>
     <ol id="installSteps"></ol>
     <button class="go" id="installClose" type="button" data-i18n="ok">Compris</button>
+  </div>
+</div>
+<div class="sheet" id="donSheet" hidden>
+  <div class="box" role="dialog" aria-modal="true">
+    <h3 data-i18n="donTitle">Soutenir le projet</h3>
+    <p class="donP" data-i18n="donText">Une seule adresse USDT, identique sur tous les réseaux EVM.</p>
+    <button class="donAddr" id="donAddr" type="button">
+      <span id="donVal">0xA2700896E16BE762467D458F2B45260f8FAC9F3e</span>
+      <small data-i18n="donHint">Appuyer pour copier</small>
+    </button>
+    <img class="donQr" src="https://raw.githubusercontent.com/moonspiid/ai-agent-multi-model/master/donate-usdt-qr.png" alt="QR USDT" loading="lazy" onerror="this.remove()">
+    <button class="go" id="donClose" type="button" data-i18n="ok">Compris</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -320,6 +360,9 @@ const I18N = {
     spotHint: 'API Futures bloquée : filtres spot utilisés, vérifiez la quantité minimale avant de lancer le bot',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
     gridsCap: '{n} grilles max (capital)', levBoost: 'levier porté à {n}×', feeNote: 'frais {n} $',
+    credDon: 'Don USDT', donTitle: 'Soutenir le projet',
+    donText: 'Une seule adresse USDT, la même sur tous les réseaux EVM : BEP20, ERC20, Polygon, Arbitrum, Base, Optimism.',
+    donHint: 'Appuyer pour copier',
     newsTitle: 'Actualités du marché', newsAll: 'Tout voir ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'Aucune actualité disponible.', newsError: 'Actualités indisponibles', retry: 'Réessayer',
     installTitle: 'Installer Trader BotView', ok: 'Compris',
@@ -341,6 +384,9 @@ const I18N = {
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
     gridsCap: '{n} grids max (capital)', levBoost: 'leverage raised to {n}×', feeNote: 'fees {n} $',
+    credDon: 'USDT tip', donTitle: 'Support the project',
+    donText: 'One USDT address, the same on every EVM network: BEP20, ERC20, Polygon, Arbitrum, Base, Optimism.',
+    donHint: 'Tap to copy',
     newsTitle: 'Market news', newsAll: 'See all ↗', newsFutures: 'Futures ↗',
     newsEmpty: 'No news available.', newsError: 'News unavailable', retry: 'Retry',
     installTitle: 'Install Trader BotView', ok: 'Got it',
@@ -733,6 +779,7 @@ const state = {
   mode: 'manual', tf: '4h', capital: 1000, lev: 3,
   metrics: null, plan: null, busy: false, countOverride: null
 };
+const DON_ADDR = '0xA2700896E16BE762467D458F2B45260f8FAC9F3e';
 const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
 const CELL_KEYS = ['cSymbol', 'cLev', 'cMargin', 'cLower', 'cUpper', 'cGrids', 'cGridMode', 'cPerGrid', 'cTotal', 'cQty', 'cTp', 'cSl'];
 
@@ -1080,6 +1127,13 @@ function bindInstall() {
     });
   }
   $('#installClose').addEventListener('click', () => { $('#sheet').hidden = true; });
+  $('#btnDon').addEventListener('click', () => { $('#donSheet').hidden = false; });
+  $('#donClose').addEventListener('click', () => { $('#donSheet').hidden = true; });
+  $('#donSheet').addEventListener('click', e => { if (e.target.id === 'donSheet') $('#donSheet').hidden = true; });
+  $('#donAddr').addEventListener('click', async () => {
+    const ok = await copyText(DON_ADDR);
+    toast(ok ? t('copied') : t('copyFail'));
+  });
   $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') $('#sheet').hidden = true; });
   setTimeout(showInstallBtn, 1200);
 }
@@ -1195,7 +1249,7 @@ function bind() {
   $('#newsRefresh').addEventListener('click', () => loadNews(true));
   $('#scrim').addEventListener('click', closeDrawer);
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeDrawer(); $('#sheet').hidden = true; }
+    if (e.key === 'Escape') { closeDrawer(); $('#sheet').hidden = true; $('#donSheet').hidden = true; }
   });
   bindInstall();
 }

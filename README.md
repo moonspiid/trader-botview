@@ -29,6 +29,7 @@ BotView computes those twelve values from the live market, puts them on a single
 - [Install on mobile](#install-on-mobile)
 - [Good to know](#good-to-know)
 - [Support the project](#support-the-project)
+- [Contributors](#contributors)
 - [License](#license)
 
 ## What the tool does
@@ -188,6 +189,14 @@ It is a regular EVM address: **the same address works on every EVM network**. Se
 | Optimism | USDT |
 
 Two rules: send **USDT only** (another token sent to this address cannot be recovered), and keep a little of the network's coin (BNB, ETH, POL) in your wallet to pay fees. A non-EVM network such as Tron (TRC20) uses another address format: nothing sent there arrives here.
+
+## Contributors
+
+| Contributor | Role |
+| --- | --- |
+| [moonspiid](https://github.com/moonspiid) · [X](https://x.com/moonspiid) | Author — grid engine, interface, documentation |
+
+Issues and pull requests are welcome on [GitHub](https://github.com/moonspiid/trader-botview).
 
 ## License
 
