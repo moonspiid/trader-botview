@@ -292,6 +292,7 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const API = 'https://data-api.binance.vision';
 const FAPI = 'https://fapi.binance.com';
+const WWW = 'https://www.binance.com';
 const LOC = { fr: 'fr-FR', en: 'en-US' };
 
 /* ============================== i18n ============================== */
@@ -307,7 +308,7 @@ const I18N = {
     netPerGrid: '{n} % net/grille', widthNote: 'plage {n} %', riskWarn: 'levier {n}× : surveillez la liquidation',
     scanning: 'Analyse', loading: 'Calcul', ready: 'Prêt',
     errPair: 'Paire inconnue', errNet: 'Réseau indisponible', errSmall: 'Capital trop faible pour {n} grilles',
-    errFunds: 'fonds insuffisants : {n} $ minimum pour 2 grilles à {lev}×',
+    errFunds: 'fonds insuffisants : {n} $ minimum, vous avez {have} $',
     spotHint: 'API Futures bloquée : filtres spot utilisés, vérifiez la quantité minimale avant de lancer le bot',
     auto: 'auto', langName: 'Français', warnMinN: 'marge/grille sous le minimum de {n} $ : réduisez les grilles',
     gridsCap: '{n} grilles max (capital)', levBoost: 'levier porté à {n}×', feeNote: 'frais {n} $',
@@ -330,6 +331,7 @@ const I18N = {
     netPerGrid: '{n} % net/grid', widthNote: 'range {n} %', riskWarn: 'leverage {n}×: watch liquidation',
     scanning: 'Scanning', loading: 'Loading', ready: 'Ready',
     errPair: 'Unknown pair', errNet: 'Network unavailable', errSmall: 'Capital too small for {n} grids',
+    errFunds: 'not enough funds: {n} $ minimum, you have {have} $',
     auto: 'auto', langName: 'English', warnMinN: 'margin/grid below the {n} $ minimum: reduce the grids',
     gridsCap: '{n} grids max (capital)', levBoost: 'leverage raised to {n}×', feeNote: 'fees {n} $',
     refresh: 'Refresh', credDon: 'USDT tip', donTitle: 'Support the project',
@@ -453,12 +455,14 @@ async function loadExchange() {
   if (exchange) return exchange;
   let data = null;
   let futures = false;
-  try {
-    data = await getJSON(FAPI + '/fapi/v1/exchangeInfo', 14000);
-    futures = true;
-  } catch (e) {
-    data = await getJSON(API + '/api/v3/exchangeInfo', 14000);
+  for (const host of [FAPI, WWW]) {
+    try {
+      data = await getJSON(host + '/fapi/v1/exchangeInfo', 14000);
+      futures = true;
+      break;
+    } catch (e) { data = null; }
   }
+  if (!data) data = await getJSON(API + '/api/v3/exchangeInfo', 14000);
   const map = new Map();
   (data.symbols || []).forEach(s => {
     if (s.status && s.status !== 'TRADING') return;
@@ -484,11 +488,14 @@ async function klines(symbol, tf, limit) {
 }
 
 async function fundingRate(symbol) {
-  try {
-    const p = await getJSON(FAPI + '/fapi/v1/premiumIndex?symbol=' + symbol, 5000);
-    const r = +p.lastFundingRate;
-    return Number.isFinite(r) ? r * 100 : null;
-  } catch (e) { return null; }
+  for (const host of [FAPI, WWW]) {
+    try {
+      const p = await getJSON(host + '/fapi/v1/premiumIndex?symbol=' + symbol, 5000);
+      const r = +p.lastFundingRate;
+      if (Number.isFinite(r)) return r * 100;
+    } catch (e) { /* next host */ }
+  }
+  return null;
 }
 
 /* ============================== indicators ============================== */
@@ -641,7 +648,7 @@ function buildGrid(m, capital, lev, override) {
   const need = Math.ceil(floorNotional / (needLev * (1 - needLev * FEE_RATE)));
   const notional = invested * L;
   const maxByCapital = Math.floor(notional / (minPerGrid * MIN_BUF));
-  if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, lev: needLev, minPerGrid: minPerGrid };
+  if (maxByCapital < MIN_GRIDS) return { error: 'funds', count: MIN_GRIDS, need: need, lev: needLev, minPerGrid: minPerGrid, have: total };
 
   const stepTarget = clamp(m.atrPct * 0.55, 0.5, 2.6);
   const guard = clamp(m.atrPct * 1.2, 2, 6);
@@ -649,29 +656,34 @@ function buildGrid(m, capital, lev, override) {
   if (m.lo > 0 && m.hi > m.lo) { rLo = Math.min(rLo, m.lo); rHi = Math.max(rHi, m.hi); }
   const widthRaw = (rHi - rLo) / m.price * 100;
   const manual = Number.isFinite(override) && override >= MIN_GRIDS;
-  const wanted = manual ? Math.round(override) : Math.round(widthRaw / stepTarget);
+  const nMax = Math.min(MAX_GRIDS, Math.max(MIN_GRIDS, Math.floor(widthRaw / 0.35)));
+  const wanted = manual ? Math.round(override) : Math.min(maxByCapital, nMax);
   const cap = Math.min(manual ? MAX_GRIDS : AUTO_MAX, maxByCapital);
   const count = clamp(Math.min(wanted, cap), MIN_GRIDS, MAX_GRIDS);
   const capped = wanted > cap;
   const levRaised = L > reqLev;
-  const wMin = clamp(count * stepTarget * 0.6, 4, 30), wMax = clamp(count * stepTarget * 1.8, 6, 30);
+  const wMax = clamp(count * stepTarget * 1.8, 6, 30);
   let lower, upper;
-  if (widthRaw >= wMin && widthRaw <= wMax) {
+  if (widthRaw <= wMax) {
     lower = rLo; upper = rHi;
   } else {
-    const w = clamp(widthRaw, wMin, wMax);
-    lower = m.price * (1 - w / 200); upper = m.price * (1 + w / 200);
+    lower = m.price * (1 - wMax / 200); upper = m.price * (1 + wMax / 200);
   }
   const widthEff = (upper - lower) / m.price * 100;
   const perNotional = notional / count;
-  if (perNotional < minPerGrid) return { error: 'funds', count: count, need: need, lev: L, minPerGrid: minPerGrid };
+  if (perNotional < minPerGrid) return { error: 'funds', count: count, need: Math.ceil(count * minPerGrid * MIN_BUF / L), lev: L, minPerGrid: minPerGrid, have: total };
   let qty = roundStep(perNotional / m.price, step, 'floor');
   if (qty < minQ) qty = roundStep(minQ, step, 'round');
   if (!qty || qty * m.price < minN) return { error: 'funds', count: count, need: need, lev: L, minPerGrid: minPerGrid };
   const geo = widthEff >= 12 || m.price >= 5000;
   const slRaw = lower * (1 - clamp(m.atrPct * 0.9 / 100, 0.012, 0.06));
   const stepPct = widthEff / count;
-  const perGrid = invested / count;
+  const perGrid = qty * m.price / L;
+  const realTotal = perGrid * count;
+  const realReserve = realTotal * L * FEE_RATE;
+  if (realTotal + realReserve > total + 1e-6) {
+    return { error: 'funds', count: count, need: Math.ceil(realTotal + realReserve), lev: L, minPerGrid: minPerGrid, have: total };
+  }
   const plan = {
     symbol: m.symbol, lev: L, levRaised: levRaised, marginMode: 'ISOLATED',
     dec: clamp(decimalsOf(tick), 0, 8),
@@ -680,8 +692,8 @@ function buildGrid(m, capital, lev, override) {
     count: count, geo: geo, width: widthEff, stepPct: stepPct, manual: manual,
     capped: capped, cap: cap,
     warn: perNotional < minN ? 'minNotional' : null, minN: minN, minPerGrid: minPerGrid,
-    perGrid: perGrid, total: invested, capital: total, reserve: reserve,
-    notional: notional, qty: qty,
+    perGrid: perGrid, total: realTotal, capital: total, reserve: realReserve,
+    notional: realTotal * L, qty: qty,
     tp: roundStep(upper, tick, 'round'),
     sl: roundStep(slRaw, tick, 'round'),
     netPerGrid: stepPct - 0.04
@@ -806,7 +818,7 @@ function gridsCell(p) {
 function errText(p) {
   if (!p) return '';
   return p.error === 'funds'
-    ? t('errFunds', { n: nf(p.need || 0, 0), lev: p.lev || 1 })
+    ? t('errFunds', { n: nf(p.need || 0, 0), have: nf(p.have || 0, 2) })
     : t('errSmall', { n: p.count || MIN_GRIDS });
 }
 

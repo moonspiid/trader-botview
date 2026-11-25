@@ -64,17 +64,17 @@ Values are copied without thousand separators and with a decimal point (`55847.7
 
 The **Grids** field is a real input, not a frozen value:
 
-- **Automatic** (default): the count follows the range width and volatility, between 2 and 60 levels. An `auto` tag shows in the cell.
+- **Automatic** (default): the count is what your capital can actually fund, between 2 and 60 levels, capped so the step never falls under 0.35 % of price. An `auto` tag shows in the cell.
 - **Manual**: type a number, or tap **−** / **+**. The tag becomes clickable to return to the computed value.
-- **Small capital**: 2 or 3 grids are enough to start. With 20 $ at 3×, two grids clear the minimum notional; the rest (margin per grid, quantity, TP, SL) recomputes on every keystroke.
-- **Live capital**: every digit typed into the Capital field immediately recomputes the total margin, the margin per grid and the grid count, without leaving the field. Total margin equals the capital minus a fee reserve of 0.05 % of the notional, and margin per grid is that amount ÷ grids, with no hidden rounding.
-- **Ceiling forced by capital**: the grid count can never exceed what the funds support. The limit is `notional ÷ (minimum notional per grid × 1.001)`, where the minimum per grid is the stricter of the two thresholds Binance imposes: 5 $ of notional, and `minimum quantity × price` — 0.001 BTC, i.e. 60 $ at 60 000 $.
+- **Small capital**: 2 or 3 grids are enough to start. With 20 $ at 3× on BTCUSDT, two grids clear the 50 $ minimum notional; the rest (margin per grid, quantity, TP, SL) recomputes on every keystroke.
+- **Live capital**: every digit typed into the Capital field immediately recomputes the grid count, the bounds, the margin per grid, the quantity, TP and SL, without leaving the field. Total margin is computed from the quantity you will actually type into Binance — `quantity × price ÷ leverage × grids` — so the total always matches what the exchange will hold.
+- **Ceiling forced by capital**: the grid count can never exceed what the funds support. The limit is `notional ÷ (minimum notional per grid × 1.001)`, where the minimum per grid is the stricter of the two thresholds Binance imposes on the Futures contract: its `MIN_NOTIONAL` (50 $ on BTCUSDT, 20 $ on ETHUSDT, 5 $ on most alts) and `minimum quantity × price` (0.001 BTC, i.e. 60 $ at 60 000 $).
 - **Margin check, in order**: the capital first goes into a fee reserve (0.05 % of the notional, i.e. 1.50 $ on 1 000 $ at 3×), then the tool looks for the smallest number of grids it can finance. If two grids do not fit at the requested leverage, leverage is raised just enough, up to the 10× maximum — 30 $ on BTCUSDT goes from 3× to 5×, 20 $ to 7×, 13 $ to 10×, and the Leverage field follows so the copyable cell tells the truth.
 - **Blocking final validation**: before display, nine checks run over the plan — at least 2 grids, leverage between 1 and 10, positive quantity above the contract minimum, notional per grid above the minimum, quantity aligned to the step, total margin within the capital, reserve covered, price strictly inside the bounds. One failure and nothing is displayed.
-- **Numbered refusal when it is physically impossible**: 12 $ on BTCUSDT cannot pay for two 60 $ orders at 10×, so the tool answers "not enough funds: 13 $ minimum for 2 grids at 10×" instead of showing a quantity Binance would reject.
-- **Bounds tightened when capital caps the count**: the range follows market structure, but if the capital only finances 4 grids over a 15 % range, the step would jump to 3.9 %. The range is then brought back to 4 × 1.8 times the target step, centred on the price, to keep the grid usable.
-- **No impossible quantity**: quantity is rounded down to the contract step, then checked. If it drops below the minimum quantity or its notional falls under 5 $, the tool refuses to produce the plan and states the capital needed: "not enough funds: 42 $ minimum for 2 grids at 3×". That message beats an order rejected by Binance.
-- **Futures data blocked**: if the Futures API is unreachable, the status pill turns amber and a tooltip warns that spot filters are in use — minimum quantities there are more permissive, check them before starting the bot.
+- **Numbered refusal when it is physically impossible**: 4.48 $ on BTCUSDT cannot pay for two 60 $ orders, even at 10×, so the tool answers "not enough funds: 13 $ minimum, you have 4.48 $" instead of showing a quantity Binance would reject.
+- **Range tightened when capital caps the count**: the range follows market structure, but if the capital only finances 4 grids over a 15 % range, the step would jump to 3.9 %. The range is then brought back to 4 × 1.8 times the target step, centred on the price, to keep the grid usable. The range is never widened beyond the market's own high and low.
+- **No impossible quantity**: quantity is rounded down to the contract step, then checked. If it drops below the minimum quantity or its notional falls under the contract minimum, the tool refuses to produce the plan and states the capital needed. That message beats an order rejected by Binance.
+- **Futures filters first**: contract filters are read from the Futures API, then from the `www.binance.com` proxy if the direct host is blocked. Only if both fail does the tool fall back to spot filters — the pill turns amber and a tooltip warns you, because spot minimums are far more permissive than the Futures ones.
 
 The grid count is kept when you change pair, capital or timeframe, until you go back to `auto`.
 
@@ -92,14 +92,14 @@ The grid count is kept when you change pair, capital or timeframe, until you go 
 - **Bounds** — the highest and lowest prices actually touched over the timeframe window: 42 candles at 4 h (7 days), 72 at 1 h (3 days), 96 at 15 min (24 h), 30 at 1 d (1 month). The lower bound is that window's low, the upper bound its high — the two extremes a trader sees on their chart, not a theoretical band.
 - **Margin around the price** — if the price sits against an extreme (range breakout, new high), the range is extended by 1.2 ATR on that side, at least 2 %, so the price is never stuck at the edge.
 - **Consistency with the grid count** — the structure range is kept as long as the step stays between 0.6 and 1.8 times the target step. Beyond that it is tightened around the price, to avoid 4 % steps with three grids.
-- **Grid count** — target step at 55 % of ATR, clamped between 0.5 % and 2.6 % of price: the count follows from the range divided by that step, then between 2 and 60 levels. The count is reduced while the margin per grid does not cover the contract's minimum notional.
+- **Grid count** — as many levels as the capital funds, capped so the step never drops under 0.35 % of price: on a 15.7 % range that ceiling is 44 grids whatever the balance. Below that ceiling, more capital buys more grids.
 - **Geometric mode** — chosen when the range exceeds 12 % or when the price exceeds 5 000, arithmetic otherwise.
-- **Leverage and margin** — notional = invested capital × leverage; total margin = capital − fee reserve (0.05 % of notional); margin per grid = invested capital ÷ grid count; quantity = notional / grids / price, rounded down to `stepSize`.
-- **Grid count versus capital** — in automatic mode the number of levels is capped by what the capital can finance: 100 $ on BTCUSDT at 3× gives 4 grids, 1 000 $ gives 11. It goes back up as soon as the capital rises, without leaving the field.
+- **Leverage and margin** — quantity = capital × leverage ÷ grids ÷ price, rounded down to `stepSize`; margin per grid = quantity × price ÷ leverage; total margin = margin per grid × grids. The numbers are read from the quantity, not the other way round, so the total always matches the exchange.
+- **Grid count versus capital** — 66.90 $ on BTCUSDT at 5× gives 5 grids over 10.6 %; 100 $ at 3× gives 4 grids; 1 000 $ gives 44 grids over the full 15.7 % range; 10 000 $ also gives 44, with 11× the quantity per grid. The count follows the balance, and the range narrows when the balance cannot cover the whole structure.
 - **Stop** — 0.9 ATR below the lower bound, clamped between 1.2 % and 6 %.
 - **Net profit** — grid step minus 0.04 % round-trip fees (maker on both sides).
 
-Prices and quantities are rounded to the contract's `tickSize` and `stepSize`, read from `exchangeInfo`. If the Futures API is not reachable from your country, the tool falls back to spot market filters and funding shows "—".
+Prices and quantities are rounded to the contract's `tickSize` and `stepSize`, read from `exchangeInfo`. Contract filters come from the Futures API, then from the `www.binance.com` proxy; only if both are blocked does the tool fall back to spot filters, and the pill turns amber.
 
 ## AI auto mode
 
